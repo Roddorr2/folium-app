@@ -78,6 +78,14 @@ Feature: Circulación de ejemplares
     When se procesa la devolución
     Then el sistema calcula 5 días de atraso
     And aplica una suspensión proporcional según la política configurada
+
+  Scenario: US3-04 - Devolución intersede cruzada y repatriación
+    Given el Item "IT-8802" pertenece a la Sede Lima Central ("home_branch")
+    And un Lector lo devuelve en el mostrador de la Sede Cusco ("current_branch")
+    When el Bibliotecario de Sede Cusco registra la devolución
+    Then el préstamo queda cerrado formalmente con fecha y hora de devolución
+    And el Item NO pasa a estado "available" en Sede Cusco
+    And el sistema cambia su estado a "in_transit" con orden de repatriación forzada hacia Sede Lima Central
 ```
 
 ## Épica 4: Red Multi-Sede y Transferencias
@@ -105,6 +113,13 @@ Feature: Red de bibliotecas multi-sede
     When el Bibliotecario de la Sede Sur escanea el Item al recibirlo
     Then el Item cambia su ubicación (shelf_location) y branch_id a Sede Sur
     And queda "available" listo para ser prestado al solicitante
+
+  Scenario: US4-04 - Resolución de incidencias y extravío en tránsito ILL
+    Given una solicitud de transferencia para el Item "IT-9940" lleva 15 días en estado "in_transit"
+    When el Bibliotecario de Red audita los traslados vencidos y declara la pérdida del ejemplar
+    Then el sistema cambia el estado del Item a "lost"
+    And actualiza la solicitud TRANSFER_REQUESTS a estado "failed"
+    And desengancha la reserva activa notificando al Lector afectado de la cancelación del traslado
 ```
 
 ## Épica 5: Recomendaciones y Notificaciones en Tiempo Real
@@ -126,4 +141,31 @@ Feature: Recomendaciones personalizadas
     When el sistema le asigna automáticamente un Item devuelto
     Then el Lector recibe una notificación push vía WebSocket en menos de 3 segundos
     And el correo de confirmación se encola de forma asíncrona
+```
+
+## Épica 6: Validación Reactiva, Gestión de Sedes y Sistema de Diseño
+
+```gherkin
+Feature: Experiencia Editorial, Validaciones y Administración
+  Como Administrador / Personal
+  Quiero formularios reactivos sin popups nativos y gestión completa de sedes
+  Para operar una plataforma bibliotecaria fluida y profesional
+
+  Scenario: US6-01 - Validación reactiva de formularios sin globos nativos
+    Given el usuario está completando el formulario de catálogo o inicio de sesión
+    When ingresa datos inválidos o deja campos obligatorios vacíos
+    Then el formulario deshabilita el envío sin mostrar globos emergentes nativos del navegador
+    And muestra mensajes de error reactivos inline en tono granate (#8C433E) con bordes destacados
+
+  Scenario: US6-02 - Gestión de Sedes de la Red (REST API Branches)
+    Given el Administrador autenticado accede a la API de sedes
+    When ejecuta peticiones CRUD sobre `/api/v1/branches`
+    Then puede crear, consultar, modificar y desactivar sedes físicamente en MySQL
+    And los cambios se reflejan inmediatamente en el selector de sucursales del catálogo
+
+  Scenario: US6-03 - Terminología bibliotecaria sin jerga de base de datos
+    Given el Lector explora el catálogo unificado
+    When observa la barra de métricas y las tarjetas de catálogo
+    Then visualiza términos naturales ("Obras en Catálogo", "Ediciones & Formatos", "Ejemplares en Red")
+    And los badges de materias muestran el acento Terracota Cuero Envejecido (#9E4E36) del sistema de diseño
 ```

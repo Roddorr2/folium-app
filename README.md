@@ -29,21 +29,22 @@ Este proyecto aplica rigurosamente **Clean Architecture / Arquitectura Hexagonal
 | **M** | Manifestation (Manifestación) | Formato físico/digital | *Edición de bolsillo Penguin 2001, ISBN X* |
 | **I** | Item (Ejemplar) | Objeto físico real asociado a una Sede | *Código IT-1002, Sede Norte, Estante A-3* |
 
-### 🧩 Reto adicional: Red Multi-Sede + Recomendaciones + Búsqueda Avanzada
+### 🧩 Reto adicional: Red Multi-Sede + Recomendaciones + Búsqueda Avanzada + Design System
 
-Para elevar la complejidad del sistema a un escenario realista de una red bibliotecaria, se agregan cuatro capacidades:
+Para elevar la complejidad del sistema a un escenario realista de una red bibliotecaria, se agregan cinco capacidades:
 
-1. **Multi-sede (`branches`):** cada `Item` pertenece a una sede física. El catálogo es único y federado; la disponibilidad se muestra desglosada por sede.
+1. **Multi-sede (`branches`):** cada `Item` pertenece a una sede física. El catálogo es único y federado; la disponibilidad se muestra desglosada por sede. REST API CRUD habilitado en `/api/v1/branches`.
 2. **Transferencia interbibliotecaria:** un `Item` puede viajar de una sede a otra mediante un flujo de estados (`available → in_transit → available`), habilitando préstamos interbibliotecarios (ILL).
-3. **Motor de recomendaciones:** basado en historial de préstamos (filtrado colaborativo simple + reglas por materia/autor), sugiere obras al lector en el OPAC.
-4. **Búsqueda avanzada y notificaciones en tiempo real:** se reemplaza el `LIKE` de MySQL por **Meilisearch** (tolerante a errores tipográficos, con facetas) y se notifica al lector vía **WebSockets (Laravel Reverb)** cuando un ítem reservado queda disponible.
+3. **Gestión de Identidad y Roles (`roles`, `users`):** autenticación basada en tokens Sanctum con control de acceso por roles (`Admin`, `Bibliotecario`, `Catalogador`, `Lector`).
+4. **Validación Reactiva & Design System (`folium.*`):** Formularios Vue 3 reactivos sin emergentes nativos de navegador (`novalidate`), con paleta botánica cerrada y acento **Terracota / Cuero Envejecido** (`#9E4E36`).
+5. **Búsqueda avanzada y notificaciones en tiempo real:** se reemplaza el `LIKE` de MySQL por **Meilisearch** (tolerante a errores tipográficos, con facetas) y se notifica al lector vía **WebSockets (Laravel Reverb)** cuando un ítem reservado queda disponible.
 
 ## 🛠️ Stack Tecnológico
 
 - **Backend:** PHP 8.x + Laravel 11 (Clean DDD Architecture) + Sanctum + Laravel Reverb (WebSockets) + Redis
 - **Buscador:** Meilisearch (vía `SearcherInterface` / `MeilisearchSearcher`)
-- **Frontend:** Vue.js 3 (Composition API) + Pinia + Vue Router + Tailwind CSS (Vite)
-- **Base de Datos:** MySQL 8.0
+- **Frontend:** Vue.js 3 (Composition API) + Pinia + Vue Router + Tailwind CSS (`folium.*` Design Tokens)
+- **Base de Datos:** MySQL 8.0 (`works`, `expressions`, `manifestations`, `items`, `branches`, `languages`, `roles`, `users`, `loans`, `reservations`, `transfer_requests`)
 
 ---
 
@@ -53,14 +54,14 @@ Para elevar la complejidad del sistema a un escenario realista de una red biblio
 folium-app/
 ├── docs/                        # Documentación central del sistema
 │   ├── README.md                # Índice de documentación
-│   ├── architecture.md          # Arquitectura Clean/Hexagonal & ERD
-│   ├── functional-requirements.md # Requisitos Funcionales
+│   ├── architecture.md          # Arquitectura Clean/Hexagonal & ERD actualizado
+│   ├── functional-requirements.md # Requisitos Funcionales y Form Validations
 │   ├── non-functional-requirements.md # Requisitos No Funcionales
-│   └── user-stories.md          # Historias de Usuario en Gherkin
+│   └── user-stories.md          # Historias de Usuario en Gherkin (Épicas 1-6)
 ├── backend/                     # Backend API & Domain Core
 │   ├── app/Domain/              # Contratos, Modelos y Servicios puros de Dominio
-│   ├── app/Infrastructure/      # Adaptadores concretos (Meilisearch, WebSockets, DB)
-│   └── app/Http/                # API Controllers & Middlewares
+│   ├── app/Infrastructure/      # Adaptadores concretos (Meilisearch, WebSockets, DB Repositories)
+│   └── app/Http/                # API Controllers (Works, Branches, Languages, Auth)
 └── frontend/                    # Single Page Application (Vue 3 + Vite + Tailwind)
 ```
 
