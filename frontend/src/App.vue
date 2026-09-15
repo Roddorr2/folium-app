@@ -1,155 +1,394 @@
 <template>
-  <div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-slate-950">
-    <!-- Top Navigation Header -->
-    <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/60">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-            <span class="text-xl">🍃</span>
-          </div>
-          <div>
-            <h1 class="font-bold text-lg leading-tight tracking-tight text-white flex items-center gap-2">
-              Folium <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono font-medium">OPAC v1.0</span>
-            </h1>
-            <p class="text-xs text-slate-400 font-medium">Red Bibliotecaria Multi-Sede</p>
-          </div>
-        </div>
+  <div class="min-h-screen w-full bg-[#F9F6F0] text-[#1C241E] flex flex-col font-sans selection:bg-[#2D5A3F] selection:text-[#F9F6F0]">
+    <!-- Header with Authentication & Branch Switcher -->
+    <CatalogHeader 
+      :branches="branches"
+      :current-branch-id="currentBranchId"
+      :active-portal="activePortal"
+      :current-user="currentUser"
+      @change-branch="handleChangeBranch"
+      @navigate="handleNavigate"
+      @open-login="isLoginModalOpen = true"
+      @logout="handleLogout"
+    />
 
-        <nav class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-300">
-          <a href="#" class="text-emerald-400 hover:text-emerald-300 transition-colors">Catálogo Público</a>
-          <a href="#" class="hover:text-white transition-colors">Disponibilidad por Sede</a>
-          <a href="#" class="hover:text-white transition-colors">Mis Préstamos</a>
-          <a href="#" class="hover:text-white transition-colors">Transferencias</a>
-        </nav>
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Portal 1: Vista de Clientes / Lectores -->
+      <ReaderPortal 
+        v-if="activePortal === 'reader'"
+        :works="works"
+        :branches="branches"
+        :current-branch-id="currentBranchId"
+        :search-query="searchQuery"
+        :selected-branch="selectedBranch"
+        :selected-status="selectedStatus"
+        :active-subjects="activeSubjects"
+        :ill-transfers="illTransfers"
+        :is-loading="isLoadingWorks"
+        @update:searchQuery="searchQuery = $event"
+        @update:selectedBranch="selectedBranch = $event"
+        @update:selectedStatus="selectedStatus = $event"
+        @toggle-subject="toggleSubjectFilter"
+        @clear-filters="clearAllFilters"
+        @open-work-detail="openWorkDetail"
+        @open-ill-modal="openIllModal"
+        @notify-availability="handleNotifyAvailability"
+      />
 
-        <div class="flex items-center space-x-3">
-          <button class="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-sm transition-all shadow-md shadow-emerald-500/20">
-            Iniciar Sesión
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <!-- Main Content Area -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
-      <!-- Hero Section & Instant Search -->
-      <section class="text-center max-w-3xl mx-auto space-y-6">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-400">
-          <span>✨ Modelo IFLA LRM / FRBR (WEMI)</span>
-        </div>
-        <h2 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
-          Descubre el conocimiento <br/>
-          <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">en toda nuestra red de sedes</span>
-        </h2>
-        <p class="text-slate-400 text-base sm:text-lg">
-          Busca obras unificadas, consulta disponibilidades físicas en tiempo real y solicita transferencias interbibliotecarias sin duplicidad de ediciones.
-        </p>
-
-        <!-- Search Bar -->
-        <div class="relative max-w-2xl mx-auto pt-2">
-          <div class="relative flex items-center">
-            <input 
-              v-model="searchQuery" 
-              type="text" 
-              placeholder="Buscar por título, autor, materia o ISBN (ej. El Señor de los Anillos)..."
-              class="w-full pl-12 pr-28 py-4 rounded-2xl glass-panel text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-sm sm:text-base shadow-2xl"
-            />
-            <svg class="w-6 h-6 text-slate-400 absolute left-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-            <button class="absolute right-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs sm:text-sm transition-all">
-              Buscar
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Featured Works Grid -->
-      <section class="space-y-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="text-xl font-bold text-white tracking-tight">Obras Destacadas en la Red</h3>
-            <p class="text-xs text-slate-400">Agrupadas por Obra (Work) con múltiples Expresiones y Ejemplares por Sede</p>
-          </div>
-          <a href="#" class="text-xs font-semibold text-emerald-400 hover:underline">Ver todas &rarr;</a>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="work in mockWorks" :key="work.id" class="glass-card rounded-2xl p-6 flex flex-col justify-between space-y-6 transition-all duration-300">
-            <div class="space-y-4">
-              <div class="flex items-start justify-between gap-3">
-                <span class="px-2.5 py-1 rounded-md bg-slate-800 text-emerald-400 text-xs font-mono font-semibold border border-slate-700">Work ID #{{ work.id }}</span>
-                <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  {{ work.availableCount }} ejemplar(es) disponible(s)
-                </span>
-              </div>
-              <div>
-                <h4 class="text-lg font-bold text-white hover:text-emerald-400 transition-colors cursor-pointer">{{ work.title }}</h4>
-                <p class="text-xs text-slate-400 mt-1">Autor: <span class="text-slate-200 font-medium">{{ work.author }}</span></p>
-              </div>
-              <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">{{ work.abstract }}</p>
-            </div>
-
-            <!-- Branch breakdown -->
-            <div class="space-y-3 pt-4 border-t border-slate-800/80">
-              <span class="text-xs font-semibold text-slate-300 block">Disponibilidad por Sede:</span>
-              <div class="flex flex-wrap gap-2">
-                <span v-for="branch in work.branches" :key="branch.name" class="px-2 py-1 rounded-lg bg-slate-900 text-xs text-slate-300 flex items-center gap-1.5 border border-slate-800">
-                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                  {{ branch.name }}: <strong class="text-white">{{ branch.count }}</strong>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <!-- Portal 2: Vista de Empleados / Personal (Protegida por Autenticación) -->
+      <StaffPortal 
+        v-else-if="activePortal === 'staff'"
+        :works="works"
+        :is-loading="isLoadingWorks"
+        @openNewWorkModal="isNewWorkModalOpen = true"
+        @open-edit-modal="handleOpenEditModal"
+        @delete-work="handleDeleteWork"
+      />
     </main>
 
-    <footer class="border-t border-slate-800/60 glass-panel py-6 mt-12">
-      <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
-        Folium SIGB &copy; {{ new Date().getFullYear() }} — Sistema Bibliotecario Multi-Sede desacoplado basado en Clean Architecture.
+    <!-- Footer -->
+    <footer class="border-t border-[#E3DAC9] bg-[#F3EFE6] py-6 mt-12">
+      <div class="max-w-7xl mx-auto px-4 text-center text-xs text-[#4A584E]">
+        Folium &copy; {{ new Date().getFullYear() }} — Sistema Integrado de Gestión Bibliotecaria Red Multi-Sede.
       </div>
     </footer>
+
+    <!-- Staff Login Modal -->
+    <LoginModal 
+      :is-open="isLoginModalOpen"
+      @close="isLoginModalOpen = false"
+      @login-success="handleLoginSuccess"
+    />
+
+    <!-- WEMI Work Detail Modal -->
+    <WemiWorkDetailModal 
+      :is-open="isWorkDetailOpen"
+      :work="selectedWork"
+      :branches="branches"
+      :current-branch-id="currentBranchId"
+      @close="isWorkDetailOpen = false"
+      @request-ill="handleOpenIllFromModal"
+    />
+
+    <!-- Interlibrary Loan (ILL) Modal -->
+    <IllTransferModal 
+      :is-open="isIllModalOpen"
+      :target-data="illTargetData"
+      :branches="branches"
+      :current-branch-id="currentBranchId"
+      @close="isIllModalOpen = false"
+      @confirm-transfer="handleConfirmIllTransfer"
+    />
+
+    <!-- New Work Cataloging Modal for Staff -->
+    <NewWorkModal 
+      :is-open="isNewWorkModalOpen"
+      :branches="branches"
+      @close="isNewWorkModalOpen = false"
+      @create-work="handleCreateNewWork"
+    />
+
+    <!-- Edit Work Cataloging Modal for Staff -->
+    <EditWorkModal 
+      :is-open="isEditWorkModalOpen"
+      :work="editingWork"
+      @close="isEditWorkModalOpen = false"
+      @update-work="handleUpdateWork"
+    />
+
+    <!-- Paper Toast Notifications -->
+    <PaperToast />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import { apiService } from './services/api';
 
-const searchQuery = ref('');
+import CatalogHeader from './components/CatalogHeader.vue';
+import ReaderPortal from './views/ReaderPortal.vue';
+import StaffPortal from './views/StaffPortal.vue';
+import LoginModal from './components/LoginModal.vue';
+import WemiWorkDetailModal from './components/WemiWorkDetailModal.vue';
+import IllTransferModal from './components/IllTransferModal.vue';
+import NewWorkModal from './components/NewWorkModal.vue';
+import EditWorkModal from './components/EditWorkModal.vue';
+import PaperToast from './components/PaperToast.vue';
 
-const mockWorks = ref([
-  {
-    id: 101,
-    title: 'El Señor de los Anillos',
-    author: 'J.R.R. Tolkien',
-    abstract: 'La epopeya fantástica clásica que sigue la travesía para destruir el Anillo Único.',
-    availableCount: 3,
-    branches: [
-      { name: 'Sede Norte', count: 2 },
-      { name: 'Sede Sur', count: 1 }
-    ]
-  },
-  {
-    id: 102,
-    title: 'Cien Años de Soledad',
-    author: 'Gabriel García Márquez',
-    abstract: 'Historia de la familia Buendía a lo largo de siete generaciones en el pueblo ficticio de Macondo.',
-    availableCount: 5,
-    branches: [
-      { name: 'Sede Central', count: 3 },
-      { name: 'Sede Norte', count: 2 }
-    ]
-  },
-  {
-    id: 103,
-    title: '1984',
-    author: 'George Orwell',
-    abstract: 'Novela distópica sobre un régimen totalitario de vigilancia masiva encabezado por el Gran Hermano.',
-    availableCount: 2,
-    branches: [
-      { name: 'Sede Sur', count: 2 }
-    ]
+import { useRouter, useRoute } from 'vue-router';
+import { useAuth } from './composables/useAuth';
+import { useToast } from './composables/useToast';
+
+const router = useRouter();
+const route = useRoute();
+const { currentUser, login: authLogin, logout: authLogout } = useAuth();
+const toast = useToast();
+
+const activePortal = ref('reader');
+
+watch(() => route.path, (newPath) => {
+  if (newPath.startsWith('/staff') || newPath.startsWith('/admin') || newPath.startsWith('/catalog') || newPath.startsWith('/transfers')) {
+    activePortal.value = 'staff';
+  } else if (newPath === '/') {
+    activePortal.value = 'reader';
   }
-]);
+}, { immediate: true });
+const branches = ref([]);
+const currentBranchId = ref(1);
+const works = ref([]);
+const searchQuery = ref('');
+const selectedBranch = ref('all');
+const selectedStatus = ref('all');
+const activeSubjects = ref([]);
+const illTransfers = ref([]);
+
+// Modals State
+const isLoginModalOpen = ref(false);
+const isWorkDetailOpen = ref(false);
+const selectedWork = ref({});
+const isIllModalOpen = ref(false);
+const illTargetData = ref(null);
+const isNewWorkModalOpen = ref(false);
+const isEditWorkModalOpen = ref(false);
+const editingWork = ref(null);
+
+const addToast = (opts) => {
+  toast.add(opts);
+};
+
+const handleNavigate = (portal) => {
+  if (portal === 'staff' && !currentUser.value) {
+    isLoginModalOpen.value = true;
+    return;
+  }
+  activePortal.value = portal;
+  if (portal === 'reader') {
+    router.push('/');
+  } else if (portal === 'staff') {
+    router.push('/staff');
+  }
+};
+
+const handleLoginSuccess = (payload) => {
+  const user = payload.user || payload;
+  authLogin(user, payload.token || null);
+  activePortal.value = 'staff';
+  router.push('/staff');
+  addToast({
+    title: 'Sesión Iniciada',
+    message: `Bienvenido(a), ${user.name}. Has accedido al área de personal.`,
+    type: 'success',
+    tag: 'Autenticación'
+  });
+};
+
+const handleLogout = () => {
+  authLogout();
+  activePortal.value = 'reader';
+  router.push('/');
+  addToast({
+    title: 'Sesión Finalizada',
+    message: 'Has salido del área de personal. Retornando al catálogo público.',
+    type: 'info',
+    tag: 'Autenticación'
+  });
+};
+
+const handleChangeBranch = (branchId) => {
+  currentBranchId.value = branchId;
+  const branchObj = branches.value.find(b => b.id === branchId);
+  if (branchObj) {
+    addToast({
+      title: 'Sede Preferida Cambiada',
+      message: `Has fijado tu contexto a ${branchObj.name}.`,
+      type: 'success',
+      tag: 'Sede'
+    });
+  }
+};
+
+const toggleSubjectFilter = (subject) => {
+  if (activeSubjects.value.includes(subject)) {
+    activeSubjects.value = activeSubjects.value.filter(s => s !== subject);
+  } else {
+    activeSubjects.value.push(subject);
+  }
+};
+
+const clearAllFilters = () => {
+  searchQuery.value = '';
+  selectedBranch.value = 'all';
+  selectedStatus.value = 'all';
+  activeSubjects.value = [];
+};
+
+const openWorkDetail = (work) => {
+  selectedWork.value = work;
+  isWorkDetailOpen.value = true;
+};
+
+const openIllModal = (work) => {
+  illTargetData.value = { work };
+  isIllModalOpen.value = true;
+};
+
+const handleOpenIllFromModal = (data) => {
+  illTargetData.value = data;
+  isIllModalOpen.value = true;
+};
+
+const handleConfirmIllTransfer = (transferPayload) => {
+  const trackingCode = `ILL-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+  illTransfers.value.unshift({
+    id: Date.now(),
+    trackingCode,
+    workTitle: transferPayload.work?.title || 'Obra Solicitada',
+    originBranch: transferPayload.originBranch,
+    targetBranch: transferPayload.targetBranch,
+    date: 'Justo ahora'
+  });
+
+  addToast({
+    title: `Préstamo ILL Solicitado (${trackingCode})`,
+    message: `Despacho programado hacia la sede seleccionada.`,
+    type: 'ill',
+    tag: 'Transferencia'
+  });
+
+  isIllModalOpen.value = false;
+};
+
+const handleNotifyAvailability = (payload) => {
+  const work = payload.work || payload;
+  const isSubscribed = payload.subscribed !== undefined ? payload.subscribed : true;
+
+  if (isSubscribed) {
+    addToast({
+      title: 'Alerta de Disponibilidad Activada',
+      message: `Te notificaremos por correo apenas existan ejemplares disponibles de "${work.title}".`,
+      type: 'success',
+      tag: 'Disponibilidad'
+    });
+  } else {
+    addToast({
+      title: 'Alerta Cancelada',
+      message: `Has cancelado la suscripción de disponibilidad para "${work.title}".`,
+      type: 'info',
+      tag: 'Disponibilidad'
+    });
+  }
+};
+
+const isLoadingWorks = ref(true);
+
+const loadWorksFromApi = async () => {
+  isLoadingWorks.value = true;
+  try {
+    const res = await apiService.getWorks();
+    if (res.data) {
+      works.value = res.data.map(w => ({
+        id: w.id,
+        title: w.title,
+        author: w.author || w.authors?.map(a => a.name).join(', ') || 'Autor Intelectual',
+        abstract: w.abstract || 'Resumen de obra catalogada.',
+        dewey: w.dewey || null,
+        nature: w.nature || 'Obra Literaria',
+        subjects: w.subjects?.map(s => s.name) || ['Literatura'],
+        expressions: w.expressions || [],
+        branches: w.branches || [],
+        availableCount: w.availableCount || 0
+      }));
+    } else {
+      works.value = [];
+    }
+
+    const branchRes = await apiService.getBranches();
+    if (branchRes.data) {
+      branches.value = branchRes.data;
+    }
+  } catch {
+    works.value = [];
+    branches.value = [];
+  } finally {
+    isLoadingWorks.value = false;
+  }
+};
+
+const handleCreateNewWork = async (newWorkData) => {
+  try {
+    const res = await apiService.createWork(newWorkData);
+    if (res.data) {
+      works.value.unshift(res.data);
+      addToast({
+        title: 'Obra Catalogada',
+        message: `"${newWorkData.title}" ha sido registrada.`,
+        type: 'success',
+        tag: 'Catalogación'
+      });
+    }
+  } catch {
+    //
+  } finally {
+    isNewWorkModalOpen.value = false;
+  }
+};
+
+const handleOpenEditModal = (work) => {
+  editingWork.value = work;
+  isEditWorkModalOpen.value = true;
+};
+
+const handleUpdateWork = async ({ id, updatedData }) => {
+  try {
+    await apiService.updateWork(id, updatedData);
+    const target = works.value.find(w => w.id === id);
+    if (target) {
+      target.title = updatedData.title;
+      target.author = updatedData.author;
+      target.dewey = updatedData.dewey;
+      target.abstract = updatedData.abstract;
+      target.originalLanguage = updatedData.original_language;
+    }
+    addToast({
+      title: 'Obra Actualizada',
+      message: `Los cambios para "${updatedData.title}" fueron guardados correctamente.`,
+      type: 'success',
+      tag: 'Catalogación'
+    });
+  } catch {
+    addToast({
+      title: 'Error al Guardar',
+      message: 'No se pudieron actualizar los cambios en la base de datos.',
+      type: 'error',
+      tag: 'Catalogación'
+    });
+  } finally {
+    isEditWorkModalOpen.value = false;
+  }
+};
+
+const handleDeleteWork = async (workId) => {
+  try {
+    await apiService.deleteWork(workId);
+    works.value = works.value.filter(w => w.id !== workId);
+    addToast({
+      title: 'Obra Eliminada',
+      message: `La obra #${workId} ha sido eliminada del catálogo.`,
+      type: 'info',
+      tag: 'Catalogación'
+    });
+  } catch {
+    addToast({
+      title: 'Error al Eliminar',
+      message: 'No se pudo eliminar la obra seleccionada.',
+      type: 'error',
+      tag: 'Catalogación'
+    });
+  }
+};
+
+onMounted(() => {
+  loadWorksFromApi();
+});
 </script>
