@@ -10,10 +10,21 @@ export default defineConfig({
     }
   },
   server: {
-    port: 3000
+    host: true,
+    port: 3000,
+    strictPort: false
+  },
+  preview: {
+    host: true,
+    port: 4173
+  },
+  build: {
+    target: 'esnext',
+    chunkSizeWarningLimit: 1000
   },
   test: {
     environment: 'jsdom',
     globals: true
   }
 });
+

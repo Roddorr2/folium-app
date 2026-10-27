@@ -32,6 +32,17 @@ backend/storage/framework/views/*
 backend/bootstrap/cache/*
 !backend/bootstrap/cache/.gitignore
 
+# Environment & Configuration files
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
 # Frontend / Node / Vue / Vite
 frontend/node_modules/
 frontend/dist/
@@ -43,3 +54,4 @@ frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
 frontend/pnpm-debug.log*
+
