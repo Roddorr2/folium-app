@@ -38,7 +38,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: Sanctum Token
-      description: Token devuelto en `POST /auth/login`. Enviar como `Authorization: Bearer <token>`.
+      description: 'Token devuelto en `POST /auth/login`. Enviar como `Authorization: Bearer <token>`.'
 
   schemas:
     ErrorResponse:
