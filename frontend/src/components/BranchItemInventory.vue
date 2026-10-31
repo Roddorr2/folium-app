@@ -35,9 +35,9 @@
           </div>
 
           <div class="flex flex-wrap items-center gap-2 text-[11px] font-mono text-folium-sage">
-            <span v-if="item.shelfLocation" class="bg-folium-ivory px-2 py-0.5 rounded border border-folium-border text-folium-ink font-medium flex items-center gap-1">
+            <span v-if="item.shelfLocation || (item as any).shelf_location" class="bg-folium-ivory px-2 py-0.5 rounded border border-folium-border text-folium-ink font-medium flex items-center gap-1">
               <MapPin class="w-3 h-3 text-folium-forest" />
-              <span>{{ item.shelfLocation }}</span>
+              <span>{{ item.shelfLocation || (item as any).shelf_location }}</span>
             </span>
             <span class="bg-folium-ivory px-2 py-0.5 rounded border border-folium-border text-folium-ink font-semibold">
               Barcode: {{ item.barcode }}
@@ -128,14 +128,15 @@ const emit = defineEmits<{
 }>();
 
 // Resolve branch ID from item properties
-const getItemBranchId = (item: Item): number => {
-  return Number(item.branchId ?? item.branch_id ?? 1);
+const getItemBranchId = (item: any): number => {
+  return Number(item.branchId ?? item.branch_id ?? item.current_branch_id ?? item.home_branch_id ?? 1);
 };
 
 // Resolve branch name from props.branches if missing on item
-const getBranchName = (item: Item): string => {
+const getBranchName = (item: any): string => {
   if (item.branchName) return item.branchName;
   if (item.branch_name) return item.branch_name;
+  if (item.branch?.name) return item.branch.name;
   const branchId = getItemBranchId(item);
   const branch = props.branches?.find(b => Number(b.id) === branchId);
   return branch ? branch.name : `Sede #${branchId}`;

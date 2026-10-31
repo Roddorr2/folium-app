@@ -9,9 +9,10 @@ Bienvenido al centro de documentación de **Folium**, Sistema Integrado de Gesti
 | Documento | Descripción |
 | --- | --- |
 | 🏗️ [Arquitectura del Sistema](file:///d:/folium-app/docs/architecture.md) | Patrón Clean/Hexagonal, diagrama ER, contratos de dominio, patrones de diseño y diagramas de secuencia. |
+| 📜 [Contrato OpenAPI 3.1 (Scalar)](file:///d:/folium-app/docs/api.yaml) | Especificación OpenAPI 3.1 de todos los endpoints REST v1, servida interactivamente con Scalar en `/api/docs`. |
 | 📋 [Requisitos Funcionales](file:///d:/folium-app/docs/functional-requirements.md) | Catálogo WEMI, Circulación, Autenticación, Búsqueda, Red Multi-Sede y Recomendaciones. |
 | ⚡ [Requisitos No Funcionales](file:///d:/folium-app/docs/non-functional-requirements.md) | Métricas de latencia, seguridad, desacoplamiento de dominio, throughput y usabilidad. |
-| 📖 [Historias de Usuario](file:///d:/folium-app/docs/user-stories.md) | Historias redactadas en sintaxis Gherkin (Given-When-Then) organizadas en 5 épicas. |
+| 📖 [Historias de Usuario](file:///d:/folium-app/docs/user-stories.md) | Historias redactadas en sintaxis Gherkin (Given-When-Then) organizadas en 6 épicas. |
 
 ---
 

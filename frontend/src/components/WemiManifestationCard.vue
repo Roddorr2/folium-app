@@ -71,7 +71,8 @@ const emit = defineEmits<{
 const publisherInfo = computed(() => {
   const parts = [];
   if (props.manifestation.publisher) parts.push(props.manifestation.publisher);
-  if (props.manifestation.publicationYear) parts.push(String(props.manifestation.publicationYear));
+  const year = props.manifestation.publicationYear ?? (props.manifestation as any).publication_year;
+  if (year) parts.push(String(year));
   return parts.join(' · ');
 });
 </script>

@@ -27,8 +27,8 @@
       >
         <FileText class="w-3.5 h-3.5" :class="activeIdx === idx ? 'text-folium-forest' : 'text-folium-sage'" />
         <span class="max-w-[220px] truncate">{{ expr.title || `Edición ${idx + 1}` }}</span>
-        <span v-if="expr.language" class="px-2 py-0.5 rounded text-[10px] font-mono bg-folium-terracotta-subtle text-folium-terracotta-deep font-semibold border border-folium-terracotta-light/40">
-          {{ expr.language }}
+        <span v-if="getExpressionLanguage(expr)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-folium-terracotta-subtle text-folium-terracotta-deep font-semibold border border-folium-terracotta-light/40">
+          {{ getExpressionLanguage(expr) }}
         </span>
       </button>
     </div>
@@ -39,8 +39,8 @@
         <span v-if="activeExpression.type" class="font-medium text-folium-ink">
           Tipo: <span class="text-folium-forest font-semibold">{{ activeExpression.type }}</span>
         </span>
-        <span v-if="activeExpression.revisionYear" class="font-mono text-folium-sage">
-          Año de revisión: {{ activeExpression.revisionYear }}
+        <span v-if="activeExpression.revisionYear || (activeExpression as any).revision_year" class="font-mono text-folium-sage">
+          Año de revisión: {{ activeExpression.revisionYear || (activeExpression as any).revision_year }}
         </span>
       </div>
       <p v-if="activeExpression.description" class="text-xs text-folium-moss leading-relaxed">
@@ -67,4 +67,12 @@ const emit = defineEmits<{
 const activeExpression = computed(() => {
   return props.expressions[props.activeIdx ?? 0] || props.expressions[0];
 });
+
+const getExpressionLanguage = (expr: any): string | null => {
+  if (!expr?.language) return null;
+  if (typeof expr.language === 'object') {
+    return expr.language.native_name || expr.language.name || expr.language.code || null;
+  }
+  return String(expr.language);
+};
 </script>

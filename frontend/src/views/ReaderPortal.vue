@@ -1,13 +1,15 @@
 <template>
-  <div class="space-y-10">
+  <div class="space-y-8 sm:space-y-10">
     <!-- Editorial Hero Section -->
-    <section class="text-center max-w-3xl mx-auto space-y-4 pt-4">
-      <h2 class="font-serif font-bold text-4xl md:text-5xl lg:text-6xl text-[#152219] leading-[1.15] tracking-tight">
+    <section class="text-center max-w-3xl mx-auto space-y-3 sm:space-y-4 pt-2 sm:pt-4 px-2">
+      <h2 class="font-serif font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[#152219] leading-[1.18] tracking-tight">
         El Archivo Vivo de Nuestra Red
-        <span class="font-serif italic font-medium text-2xl md:text-3xl text-[#2D5A3F] mt-2 block">Catálogo Colectivo &amp; Fondo Bibliográfico</span>
+        <span class="font-serif italic font-medium text-xl sm:text-2xl md:text-3xl text-[#2D5A3F] mt-1.5 sm:mt-2 block">
+          Catálogo Colectivo &amp; Fondo Bibliográfico
+        </span>
       </h2>
 
-      <p class="text-[#3C4A40] text-base md:text-lg max-w-2xl mx-auto leading-relaxed mt-4 font-sans">
+      <p class="text-[#3C4A40] text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed mt-3 sm:mt-4 font-sans">
         Consulta volúmenes, ediciones históricas y ejemplares disponibles para préstamo en sala o traslado intersede entre nuestras cuatro sucursales.
       </p>
     </section>
@@ -23,7 +25,7 @@
     />
 
     <!-- Lithographic Ornamental Divider -->
-    <div class="border-t border-[#DFD6C4] w-full relative my-10 flex items-center justify-center">
+    <div class="border-t border-[#DFD6C4] w-full relative my-6 sm:my-10 flex items-center justify-center">
       <div class="relative px-4 bg-[#F9F6F0] text-[#2D5A3F] text-sm select-none font-serif flex items-center gap-2">
         <span>❖</span>
       </div>
@@ -113,7 +115,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { Sparkles, BookOpen, SearchX } from 'lucide-vue-next';
+import { BookOpen, SearchX } from 'lucide-vue-next';
 import BranchStatsOverview from '../components/BranchStatsOverview.vue';
 import CatalogFilterBar from '../components/CatalogFilterBar.vue';
 import WemiWorkCard from '../components/WemiWorkCard.vue';
@@ -123,7 +125,7 @@ const props = defineProps({
   branches: { type: Array, default: () => [] },
   currentBranchId: { type: Number, default: 1 },
   searchQuery: { type: String, default: '' },
-  selectedBranch: { type: String, default: 'all' },
+  selectedBranch: { type: [String, Number], default: 'all' },
   selectedStatus: { type: String, default: 'all' },
   activeSubjects: { type: Array, default: () => [] },
   illTransfers: { type: Array, default: () => [] },
@@ -151,7 +153,79 @@ const availableSubjects = [
   'Ensayos e Iconografía'
 ];
 
-const filteredWorks = computed(() => props.works);
+const getWorkItems = (work) => {
+  const items = [];
+  work.expressions?.forEach(expr => {
+    expr.manifestations?.forEach(manif => {
+      manif.items?.forEach(item => items.push(item));
+    });
+  });
+  return items;
+};
+
+const getItemBranchId = (item) => {
+  return Number(item?.branch_id ?? item?.current_branch_id ?? item?.branchId ?? item?.home_branch_id ?? 1);
+};
+
+const matchesStatusFilter = (itemStatus, selectedStatus) => {
+  const s = String(itemStatus || '').toLowerCase();
+  if (selectedStatus === 'Disponible') {
+    return s === 'available' || s === 'disponible';
+  }
+  if (selectedStatus === 'En Tránsito (ILL)') {
+    return s === 'in_transit' || s.includes('tránsito') || s.includes('transit');
+  }
+  if (selectedStatus === 'Prestado') {
+    return s === 'loaned' || s === 'borrowed' || s === 'prestado';
+  }
+  if (selectedStatus === 'Reservado') {
+    return s === 'reserved' || s === 'reservado';
+  }
+  return true;
+};
+
+const filteredWorks = computed(() => {
+  const q = props.searchQuery.trim().toLowerCase();
+  const branchFilter = props.selectedBranch;
+  const statusFilter = props.selectedStatus;
+  const subjectFilters = props.activeSubjects;
+
+  return props.works.filter(work => {
+    // 1. Text search (title, author, dewey, abstract, subjects)
+    if (q) {
+      const titleMatch = String(work.title || '').toLowerCase().includes(q);
+      const authorMatch = String(work.author || '').toLowerCase().includes(q);
+      const deweyMatch = String(work.dewey || '').toLowerCase().includes(q);
+      const abstractMatch = String(work.abstract || '').toLowerCase().includes(q);
+      const subjectMatch = (work.subjects || []).some(sub => String(sub).toLowerCase().includes(q));
+      if (!titleMatch && !authorMatch && !deweyMatch && !abstractMatch && !subjectMatch) {
+        return false;
+      }
+    }
+
+    // 2. Subject chips filter
+    if (subjectFilters.length > 0) {
+      const workSubjects = (work.subjects || []).map(s => String(s).toLowerCase());
+      const hasSubject = subjectFilters.some(activeSub =>
+        workSubjects.some(ws => ws.includes(activeSub.toLowerCase()) || activeSub.toLowerCase().includes(ws))
+      );
+      if (!hasSubject) return false;
+    }
+
+    // 3. Branch & Status filters over physical items
+    if (branchFilter !== 'all' || statusFilter !== 'all') {
+      const items = getWorkItems(work);
+      const matchingItems = items.filter(item => {
+        const branchOk = branchFilter === 'all' || getItemBranchId(item) === Number(branchFilter);
+        const statusOk = statusFilter === 'all' || matchesStatusFilter(item.status, statusFilter);
+        return branchOk && statusOk;
+      });
+      if (matchingItems.length === 0) return false;
+    }
+
+    return true;
+  });
+});
 
 const hasActiveFilters = computed(() => {
   return !!props.searchQuery || props.selectedBranch !== 'all' || props.selectedStatus !== 'all' || props.activeSubjects.length > 0;

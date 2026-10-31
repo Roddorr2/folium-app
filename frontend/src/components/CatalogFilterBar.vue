@@ -3,7 +3,7 @@
     <!-- Main High-Speed Search Input Container -->
     <div class="relative h-14 bg-[#FDFBF7] rounded-2xl border-2 border-[#D8CEBC] focus-within:border-[#2D5A3F] focus-within:ring-4 focus-within:ring-[#2D5A3F]/10 shadow-[0_8px_30px_rgba(28,36,30,0.06)] flex items-center px-2 transition-all">
       <div class="relative flex items-center w-full">
-        <Search class="w-5 h-5 text-[#6E7B72] absolute left-3.5 pointer-events-none stroke-[1.75]" />
+        <Search class="w-5 h-5 text-[#6E7B72] absolute left-3 pointer-events-none stroke-[1.75]" />
         <label for="catalog-search-input" class="sr-only">Buscar por título, autoría, materia o signatura</label>
         <input 
           id="catalog-search-input"
@@ -11,17 +11,17 @@
           @input="$emit('update:searchQuery', $event.target.value)"
           type="text" 
           aria-label="Buscar en el catálogo"
-          placeholder="Buscar por título, autoría, materia o signatura..."
-          class="w-full pl-11 pr-32 sm:pr-36 bg-transparent text-[#152219] placeholder-[#7D8D81] focus:outline-none text-base md:text-sm font-sans font-medium"
+          :placeholder="searchPlaceholder"
+          class="w-full pl-9 sm:pl-11 pr-24 sm:pr-36 bg-transparent text-[#152219] placeholder-[#7D8D81] focus:outline-none text-sm font-sans font-medium"
         />
         
-        <div class="absolute right-2 flex items-center gap-2">
+        <div class="absolute right-1 sm:right-2 flex items-center gap-1 sm:gap-2">
           <!-- Clear search query button -->
           <button 
             v-if="searchQuery"
             type="button"
             @click="$emit('update:searchQuery', '')"
-            class="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center text-[#7D8D81] hover:text-[#152219] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2D5A3F] rounded"
+            class="p-1.5 sm:p-2 min-w-[32px] sm:min-w-[36px] min-h-[32px] sm:min-h-[36px] flex items-center justify-center text-[#7D8D81] hover:text-[#152219] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2D5A3F] rounded"
             aria-label="Limpiar término de búsqueda"
             title="Limpiar búsqueda"
           >
@@ -37,7 +37,7 @@
           <button 
             type="button"
             aria-label="Ejecutar búsqueda en catálogo"
-            class="bg-[#2D5A3F] hover:bg-[#1E3E2B] text-[#FAF8F2] px-5 sm:px-7 h-10 min-h-[40px] font-semibold rounded-lg shadow-sm flex items-center justify-center text-xs sm:text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2D5A3F]"
+            class="bg-[#2D5A3F] hover:bg-[#1E3E2B] text-[#FAF8F2] px-4 sm:px-7 h-10 min-h-[40px] font-semibold rounded-lg shadow-sm flex items-center justify-center text-xs sm:text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2D5A3F]"
           >
             <span>Buscar</span>
           </button>
@@ -133,6 +133,7 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Search, X, Building2, CheckCircle2, Tag, RotateCcw } from 'lucide-vue-next';
 
 defineProps({
@@ -148,4 +149,29 @@ defineProps({
 });
 
 defineEmits(['update:searchQuery', 'update:selectedBranch', 'update:selectedStatus', 'toggle-subject', 'clear-filters']);
+
+const isMobile = ref(false);
+
+const updateViewport = () => {
+  if (typeof window !== 'undefined') {
+    isMobile.value = window.innerWidth < 640;
+  }
+};
+
+onMounted(() => {
+  updateViewport();
+  window.addEventListener('resize', updateViewport, { passive: true });
+});
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', updateViewport);
+  }
+});
+
+const searchPlaceholder = computed(() => {
+  return isMobile.value
+    ? 'Buscar en el catálogo...'
+    : 'Buscar por título, autoría, materia o signatura...';
+});
 </script>

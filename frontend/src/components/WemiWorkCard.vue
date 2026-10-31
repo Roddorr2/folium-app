@@ -176,17 +176,26 @@ const allItems = computed(() => {
   return items;
 });
 
+const isItemAvailable = (item) => {
+  const s = String(item?.status || '').toLowerCase();
+  return s === 'available' || s === 'disponible';
+};
+
+const getItemBranchId = (item) => {
+  return Number(item?.branch_id ?? item?.current_branch_id ?? item?.branchId ?? item?.home_branch_id ?? 1);
+};
+
 // Calculate total available physical copies
 const availableTotal = computed(() => {
-  return allItems.value.filter(i => i.status === 'Disponible').length;
+  return allItems.value.filter(isItemAvailable).length;
 });
 
 // Compute only branches that have available physical stock (count > 0)
 const availableBranches = computed(() => {
   return props.branches
     .map(branch => {
-      const branchItems = allItems.value.filter(i => i.branchId === branch.id);
-      const count = branchItems.filter(i => i.status === 'Disponible').length;
+      const branchItems = allItems.value.filter(i => getItemBranchId(i) === Number(branch.id));
+      const count = branchItems.filter(isItemAvailable).length;
       const shortName = branch.name.replace(/^Sede\s+/i, '');
       return {
         id: branch.id,

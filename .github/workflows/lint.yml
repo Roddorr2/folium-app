@@ -1,0 +1,50 @@
+name: Code Quality & Linter
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - 'feat/**'
+      - 'test/**'
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  backend-lint:
+    name: Backend Style (Laravel Pint)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+
+      - name: Install Composer Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Run Laravel Pint (Test Mode)
+        run: ./vendor/bin/pint --test
+
+  openapi-contract-check:
+    name: OpenAPI Contract Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verify api.yaml Exists and is Valid YAML
+        run: |
+          python3 -c "import yaml, sys; data = yaml.safe_load(open('docs/api.yaml')); assert data.get('openapi', '').startswith('3.'), 'Invalid OpenAPI version'; print('OpenAPI contract valid:', data['info']['title'], data['info']['version'])"
+

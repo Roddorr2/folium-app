@@ -44,6 +44,8 @@
         @openNewWorkModal="isNewWorkModalOpen = true"
         @open-edit-modal="handleOpenEditModal"
         @delete-work="handleDeleteWork"
+        @processLoan="handleProcessLoan"
+        @processReturn="handleProcessReturn"
       />
     </main>
 
@@ -155,6 +157,38 @@ const editingWork = ref(null);
 
 const addToast = (opts) => {
   toast.add(opts);
+};
+
+const computeAvailableCount = (expressions = []) => {
+  let count = 0;
+  expressions.forEach(expr => {
+    expr.manifestations?.forEach(manif => {
+      manif.items?.forEach(item => {
+        const s = String(item?.status || '').toLowerCase();
+        if (s === 'available' || s === 'disponible') {
+          count++;
+        }
+      });
+    });
+  });
+  return count;
+};
+
+const normalizeWork = (w) => {
+  const expressions = w.expressions || [];
+  return {
+    id: w.id,
+    title: w.title,
+    author: w.author || w.authors?.map(a => a.name ?? a).join(', ') || 'Autor Intelectual',
+    abstract: w.abstract || 'Resumen de obra catalogada.',
+    originalLanguage: w.originalLanguage || w.original_language || 'Español',
+    dewey: w.dewey || null,
+    nature: w.nature || 'Obra Literaria',
+    subjects: w.subjects?.map(s => s.name ?? s) || ['Literatura'],
+    expressions,
+    branches: w.branches || [],
+    availableCount: typeof w.availableCount === 'number' ? w.availableCount : computeAvailableCount(expressions)
+  };
 };
 
 const handleNavigate = (portal) => {
@@ -287,18 +321,7 @@ const loadWorksFromApi = async () => {
   try {
     const res = await apiService.getWorks();
     if (res.data) {
-      works.value = res.data.map(w => ({
-        id: w.id,
-        title: w.title,
-        author: w.author || w.authors?.map(a => a.name).join(', ') || 'Autor Intelectual',
-        abstract: w.abstract || 'Resumen de obra catalogada.',
-        dewey: w.dewey || null,
-        nature: w.nature || 'Obra Literaria',
-        subjects: w.subjects?.map(s => s.name) || ['Literatura'],
-        expressions: w.expressions || [],
-        branches: w.branches || [],
-        availableCount: w.availableCount || 0
-      }));
+      works.value = res.data.map(normalizeWork);
     } else {
       works.value = [];
     }
@@ -319,7 +342,7 @@ const handleCreateNewWork = async (newWorkData) => {
   try {
     const res = await apiService.createWork(newWorkData);
     if (res.data) {
-      works.value.unshift(res.data);
+      works.value.unshift(normalizeWork(res.data));
       addToast({
         title: 'Obra Catalogada',
         message: `"${newWorkData.title}" ha sido registrada.`,
@@ -328,7 +351,12 @@ const handleCreateNewWork = async (newWorkData) => {
       });
     }
   } catch {
-    //
+    addToast({
+      title: 'Error de Catalogación',
+      message: 'No fue posible registrar la obra en la base de datos.',
+      type: 'error',
+      tag: 'Catalogación'
+    });
   } finally {
     isNewWorkModalOpen.value = false;
   }
@@ -341,14 +369,18 @@ const handleOpenEditModal = (work) => {
 
 const handleUpdateWork = async ({ id, updatedData }) => {
   try {
-    await apiService.updateWork(id, updatedData);
-    const target = works.value.find(w => w.id === id);
-    if (target) {
-      target.title = updatedData.title;
-      target.author = updatedData.author;
-      target.dewey = updatedData.dewey;
-      target.abstract = updatedData.abstract;
-      target.originalLanguage = updatedData.original_language;
+    const res = await apiService.updateWork(id, updatedData);
+    const idx = works.value.findIndex(w => w.id === id);
+    if (idx !== -1) {
+      if (res?.data) {
+        works.value[idx] = normalizeWork(res.data);
+      } else {
+        works.value[idx].title = updatedData.title;
+        works.value[idx].author = updatedData.author;
+        works.value[idx].dewey = updatedData.dewey;
+        works.value[idx].abstract = updatedData.abstract;
+        works.value[idx].originalLanguage = updatedData.original_language;
+      }
     }
     addToast({
       title: 'Obra Actualizada',
@@ -384,6 +416,49 @@ const handleDeleteWork = async (workId) => {
       message: 'No se pudo eliminar la obra seleccionada.',
       type: 'error',
       tag: 'Catalogación'
+    });
+  }
+};
+
+const handleProcessLoan = async ({ barcode, userId }) => {
+  try {
+    await apiService.createLoan({
+      item_barcode: barcode,
+      user_identifier: userId,
+      branch_id: currentBranchId.value
+    });
+    addToast({
+      title: 'Préstamo Registrado',
+      message: `El ejemplar ${barcode} ha sido prestado exitosamente.`,
+      type: 'success',
+      tag: 'Circulación'
+    });
+    await loadWorksFromApi();
+  } catch (err) {
+    addToast({
+      title: 'Error de Circulación',
+      message: err.data?.message || err.message || 'No fue posible registrar el préstamo.',
+      type: 'error',
+      tag: 'Circulación'
+    });
+  }
+};
+
+const handleProcessReturn = async ({ barcode }) => {
+  try {
+    addToast({
+      title: 'Devolución Confirmada',
+      message: `El ejemplar ${barcode} ha sido recibido e ingresado al estante.`,
+      type: 'success',
+      tag: 'Circulación'
+    });
+    await loadWorksFromApi();
+  } catch (err) {
+    addToast({
+      title: 'Error al Devolver',
+      message: err.data?.message || err.message || 'No fue posible confirmar la devolución.',
+      type: 'error',
+      tag: 'Circulación'
     });
   }
 };

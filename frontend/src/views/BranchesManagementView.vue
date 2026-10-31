@@ -21,7 +21,7 @@
         aria-label="Registrar nueva sede bibliotecaria"
       >
         <Plus class="w-4 h-4" />
-        <span>+ Registrar Nueva Sede</span>
+        <span>Registrar Nueva Sede</span>
       </button>
     </div>
 
@@ -30,12 +30,12 @@
       <table class="w-full text-left border-collapse">
         <thead>
           <tr class="border-b border-[#E3DAC9] bg-[#EBE5D8]/70 text-xs font-semibold text-[#4A584E] uppercase tracking-wider">
-            <th class="p-4">ID / Código</th>
-            <th class="p-4">Nombre de la Sede</th>
-            <th class="p-4">Ubicación & Dirección</th>
-            <th class="p-4">Ejemplares Custodiados</th>
-            <th class="p-4 text-center">Estado</th>
-            <th class="p-4 text-right">Acciones</th>
+            <th class="p-4 w-28 whitespace-nowrap">ID / Código</th>
+            <th class="p-4 min-w-[200px]">Nombre de la Sede</th>
+            <th class="p-4 min-w-[200px]">Ubicación & Dirección</th>
+            <th class="p-4 w-48 whitespace-nowrap">Ejemplares Custodiados</th>
+            <th class="p-4 w-28 text-center whitespace-nowrap">Estado</th>
+            <th class="p-4 w-24 text-right whitespace-nowrap">Acciones</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-[#E3DAC9] text-xs text-[#1C241E]">
@@ -54,7 +54,7 @@
                 <div class="h-3 w-48 bg-[#EDE7DC] rounded"></div>
               </td>
               <td class="p-4">
-                <div class="h-6 w-24 bg-[#E8E2D5] rounded-full"></div>
+                <div class="h-6 w-28 bg-[#E8E2D5] rounded-full"></div>
               </td>
               <td class="p-4 text-center">
                 <div class="h-5 w-16 bg-[#E8E2D5] rounded-full mx-auto"></div>
@@ -68,7 +68,7 @@
           <!-- Actual Rows -->
           <template v-else-if="branches.length > 0">
             <tr v-for="branch in branches" :key="branch.id" class="hover:bg-[#F9F6F0] transition-colors">
-              <td class="p-4 font-mono font-bold text-[#2D5A3F]">FOL-{{ branch.id }}</td>
+              <td class="p-4 font-mono font-bold text-[#2D5A3F] whitespace-nowrap">FOL-{{ branch.id }}</td>
               <td class="p-4">
                 <span class="font-bold font-serif text-sm block text-[#1C241E]">{{ branch.name }}</span>
                 <span v-if="branch.phone" class="text-[11px] text-[#6E7B72] font-sans">Tel: {{ branch.phone }}</span>
@@ -77,21 +77,22 @@
                 <span class="font-medium text-[#1C241E] block">{{ branch.city || 'Sede Central' }}</span>
                 <span class="text-[11px] text-[#6E7B72]">{{ branch.address || 'Sin dirección registrada' }}</span>
               </td>
-              <td class="p-4">
-                <span class="px-3 py-1 rounded-full text-xs font-semibold badge-laurel">
-                  {{ branch.items_count ?? branch.itemsCount ?? 0 }} ejemplares
-                </span>
+              <td class="p-4 whitespace-nowrap">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#E9F2EB] text-[#2D5A3F] border border-[#2D5A3F]/20 whitespace-nowrap shadow-xs">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#2D5A3F] shrink-0"></span>
+                  <span>{{ branch.items_count ?? branch.itemsCount ?? 0 }} ejemplares</span>
+                </div>
               </td>
-              <td class="p-4 text-center">
+              <td class="p-4 text-center whitespace-nowrap">
                 <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#E9F2EB] text-[#2D5A3F] border border-[#2D5A3F]/20">
                   Activa
                 </span>
               </td>
-              <td class="p-4 text-right space-x-2">
+              <td class="p-4 text-right space-x-2 whitespace-nowrap">
                 <button 
                   type="button"
                   @click="openEditModal(branch)"
-                  class="p-2.5 min-w-[44px] min-h-[44px] rounded-xl bg-[#EBE5D8] hover:bg-[#2D5A3F] text-[#1C241E] hover:text-[#F9F6F0] transition-colors border border-[#E3DAC9] inline-flex items-center justify-center"
+                  class="p-2.5 min-w-[44px] min-h-[44px] rounded-xl bg-[#EBE5D8] hover:bg-[#2D5A3F] text-[#1C241E] hover:text-[#F9F6F0] transition-colors border border-[#E3DAC9] inline-flex items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2D5A3F]"
                   title="Editar datos de sede"
                   :aria-label="'Editar sede ' + branch.name"
                 >
@@ -174,7 +175,7 @@
             <button 
               type="button"
               @click="openEditModal(branch)"
-              class="w-full py-2.5 min-h-[44px] rounded-xl bg-[#EBE5D8] hover:bg-[#2D5A3F] text-[#1C241E] hover:text-[#F9F6F0] font-semibold text-xs transition-colors border border-[#E3DAC9] flex items-center justify-center gap-2"
+              class="w-full py-2.5 min-h-[44px] rounded-xl bg-[#EBE5D8] hover:bg-[#2D5A3F] text-[#1C241E] hover:text-[#F9F6F0] font-semibold text-xs transition-colors border border-[#E3DAC9] flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2D5A3F]"
             >
               <Pencil class="w-4 h-4" />
               <span>Editar Metadatos de Sede</span>

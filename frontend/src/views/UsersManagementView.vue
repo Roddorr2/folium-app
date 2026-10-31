@@ -21,7 +21,7 @@
         aria-label="Registrar nuevo usuario o personal"
       >
         <UserPlus class="w-4 h-4" />
-        <span>+ Registrar Nuevo Usuario</span>
+        <span>Registrar Nuevo Usuario</span>
       </button>
     </div>
 
@@ -152,15 +152,15 @@
           :key="'user-mobile-skeleton-' + n"
           class="paper-card p-4 rounded-2xl border border-[#E3DAC9] space-y-3 shadow-paper-sm animate-pulse"
         >
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-full bg-[#E8E2D5]"></div>
-              <div class="space-y-1">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5 min-w-0 flex-1">
+              <div class="w-8 h-8 rounded-full bg-[#E8E2D5] shrink-0"></div>
+              <div class="space-y-1 min-w-0 flex-1">
                 <div class="h-4 w-28 bg-[#E8E2D5] rounded"></div>
                 <div class="h-3 w-36 bg-[#EDE7DC] rounded"></div>
               </div>
             </div>
-            <div class="h-5 w-16 bg-[#E8E2D5] rounded-full"></div>
+            <div class="h-5 w-16 bg-[#E8E2D5] rounded-full shrink-0"></div>
           </div>
           <div class="h-4 w-1/2 bg-[#EDE7DC] rounded"></div>
           <div class="pt-2 border-t border-[#E3DAC9] flex gap-2">
@@ -177,33 +177,34 @@
           :key="'mobile-' + user.id"
           class="paper-card p-4 rounded-2xl border border-[#E3DAC9] space-y-3 shadow-paper-sm"
         >
-          <div class="flex items-center justify-between gap-2 border-b border-[#E3DAC9]/80 pb-2">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-full bg-[#2D5A3F] text-[#F9F6F0] font-bold flex items-center justify-center text-xs uppercase shrink-0">
+          <div class="flex items-start justify-between gap-2 border-b border-[#E3DAC9]/80 pb-2.5">
+            <div class="flex items-start gap-2.5 min-w-0 flex-1">
+              <div class="w-8 h-8 rounded-full bg-[#2D5A3F] text-[#F9F6F0] font-bold flex items-center justify-center text-xs uppercase shrink-0 mt-0.5 shadow-xs">
                 {{ user.initials || 'U' }}
               </div>
-              <div>
+              <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <h4 class="font-serif font-bold text-sm text-[#1C241E] leading-snug">{{ user.name }}</h4>
+                  <h4 class="font-serif font-bold text-sm text-[#1C241E] leading-snug break-words">{{ user.name }}</h4>
                   <span 
                     v-if="isCurrentUser(user.id)" 
-                    class="px-1.5 py-0.2 rounded bg-[#E9F2EB] text-[#2D5A3F] text-[10px] font-bold border border-[#2D5A3F]/20"
+                    class="px-1.5 py-0.5 rounded bg-[#E9F2EB] text-[#2D5A3F] text-[10px] font-bold border border-[#2D5A3F]/20 uppercase tracking-wider shrink-0"
                   >
                     (Tú)
                   </span>
                 </div>
-                <span class="font-mono text-[11px] text-[#2D5A3F] block">{{ user.email }}</span>
+                <span class="font-mono text-[11px] text-[#2D5A3F] block truncate mt-0.5" :title="user.email">{{ user.email }}</span>
+                <span v-if="user.dni" class="text-[10px] text-[#6E7B72] block mt-0.5">DNI: {{ user.dni }}</span>
               </div>
             </div>
 
-            <span :class="getBadgeClassByVariant(user.role?.badge_variant)" class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0">
+            <span :class="getBadgeClassByVariant(user.role?.badge_variant)" class="px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0 whitespace-nowrap self-start mt-0.5">
               {{ user.role?.display_name || user.role?.name || 'Lector' }}
             </span>
           </div>
 
-          <div class="flex items-center justify-between text-xs pt-1">
-            <span class="text-[#6E7B72]">Sede física:</span>
-            <span class="font-medium text-[#1C241E]">
+          <div class="flex items-center justify-between text-xs pt-1 gap-2">
+            <span class="text-[#6E7B72] shrink-0">Sede física:</span>
+            <span class="font-medium text-[#1C241E] text-right truncate">
               {{ user.branch ? user.branch.name : (user.role?.key === 'librarian' ? 'Sin Sede (!)' : 'Toda la Red') }}
             </span>
           </div>
@@ -212,9 +213,9 @@
             <button 
               type="button"
               @click="openEditModal(user)"
-              class="flex-1 py-2.5 px-3 min-h-[44px] rounded-xl bg-[#EBE5D8] hover:bg-[#2D5A3F] text-[#1C241E] hover:text-[#F9F6F0] font-semibold text-xs transition-colors border border-[#E3DAC9] flex items-center justify-center gap-1.5"
+              class="flex-1 py-2.5 px-3 min-h-[44px] rounded-xl bg-[#EBE5D8] hover:bg-[#2D5A3F] text-[#1C241E] hover:text-[#F9F6F0] font-semibold text-xs transition-colors border border-[#E3DAC9] flex items-center justify-center gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2D5A3F]"
             >
-              <Pencil class="w-4 h-4" />
+              <Pencil class="w-4 h-4 shrink-0" />
               <span>Editar Rol</span>
             </button>
             <button 
@@ -224,13 +225,13 @@
               :aria-disabled="isCurrentUser(user.id)"
               :title="isCurrentUser(user.id) ? 'No puedes eliminar o desactivar tu propia cuenta en sesión' : 'Revocar credenciales'"
               :class="[
-                'py-2.5 px-3 min-h-[44px] rounded-xl font-semibold text-xs transition-colors border flex items-center justify-center gap-1.5',
+                'py-2.5 px-3 min-h-[44px] rounded-xl font-semibold text-xs transition-colors border flex items-center justify-center gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8C433E]',
                 isCurrentUser(user.id) 
                   ? 'bg-[#F2ECE4] text-[#A69B89] border-[#E3DAC9] opacity-30 cursor-not-allowed pointer-events-none' 
                   : 'bg-[#F9EDED] hover:bg-[#8C433E] text-[#8C433E] hover:text-[#F9F6F0] border-[#8C433E]/20'
               ]"
             >
-              <Trash2 class="w-4 h-4" />
+              <Trash2 class="w-4 h-4 shrink-0" />
               <span>Revocar</span>
             </button>
           </div>
