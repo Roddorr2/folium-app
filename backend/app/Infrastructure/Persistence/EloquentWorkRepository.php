@@ -11,6 +11,7 @@ class EloquentWorkRepository implements WorkRepositoryInterface
     public function findById(string|int $id): ?array
     {
         $work = Work::with(['authors', 'subjects', 'expressions.language', 'expressions.manifestations.items.branch'])->find($id);
+
         return $work ? $work->toArray() : null;
     }
 
@@ -45,7 +46,7 @@ class EloquentWorkRepository implements WorkRepositoryInterface
             foreach ($branchCounts as $name => $count) {
                 $branches[] = [
                     'name' => $name,
-                    'count' => $count
+                    'count' => $count,
                 ];
             }
 

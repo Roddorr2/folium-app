@@ -4,20 +4,18 @@ declare(strict_types=1);
 
 namespace App\Domain\Services;
 
+use App\Domain\Contracts\NotifierInterface;
 use App\Domain\Contracts\TransferRepositoryInterface;
 use App\Domain\Contracts\TransferStrategyInterface;
-use App\Domain\Contracts\NotifierInterface;
 use App\Domain\Events\ItemLostInTransitEvent;
-use DomainException;
 use DateTimeImmutable;
+use DomainException;
 use Illuminate\Support\Facades\DB;
 
 class TransferService
 {
     /**
-     * @param TransferRepositoryInterface $repository
-     * @param array<TransferStrategyInterface> $strategies
-     * @param NotifierInterface|null $notifier
+     * @param  array<TransferStrategyInterface>  $strategies
      */
     public function __construct(
         private TransferRepositoryInterface $repository,
@@ -40,8 +38,8 @@ class TransferService
                 }
             }
 
-            if (!$selectedStrategy) {
-                throw new DomainException("No se encontró una estrategia válida para la transferencia solicitada.");
+            if (! $selectedStrategy) {
+                throw new DomainException('No se encontró una estrategia válida para la transferencia solicitada.');
             }
 
             $transferResult = $selectedStrategy->executeTransfer($itemId, $originBranchId, $destinationBranchId);
@@ -50,7 +48,7 @@ class TransferService
                 'item_id' => $itemId,
                 'origin_branch_id' => $originBranchId,
                 'destination_branch_id' => $destinationBranchId,
-                'status' => $transferResult['status']
+                'status' => $transferResult['status'],
             ]);
 
             if ($transferResult['in_transit']) {
@@ -68,7 +66,7 @@ class TransferService
     {
         return DB::transaction(function () use ($transferId, $destinationBranchId) {
             $transfer = $this->repository->findById($transferId);
-            if (!$transfer) {
+            if (! $transfer) {
                 throw new DomainException("La solicitud de transferencia {$transferId} no existe.");
             }
 
@@ -84,7 +82,7 @@ class TransferService
                 'item_id' => $transfer['item_id'],
                 'new_branch_id' => $destinationBranchId,
                 'status' => 'available',
-                'message' => 'Ejemplar recibido exitosamente en la sede de destino y disponible para préstamo.'
+                'message' => 'Ejemplar recibido exitosamente en la sede de destino y disponible para préstamo.',
             ];
         });
     }
@@ -96,15 +94,15 @@ class TransferService
     {
         return DB::transaction(function () use ($transferId, $reason, $reportedByUserId) {
             $transfer = $this->repository->findById($transferId);
-            if (!$transfer) {
+            if (! $transfer) {
                 throw new DomainException("La solicitud de transferencia ID {$transferId} no fue encontrada.");
             }
 
-            if (!in_array($transfer['status'], ['in_transit', 'pending'], true)) {
+            if (! in_array($transfer['status'], ['in_transit', 'pending'], true)) {
                 throw new DomainException("Solo se pueden declarar extravíos para transferencias en estado 'in_transit' o 'pending'.");
             }
 
-            $now = (new DateTimeImmutable())->format('Y-m-d H:i:s');
+            $now = (new DateTimeImmutable)->format('Y-m-d H:i:s');
 
             // 1. Transition Item status to 'lost'
             $this->repository->updateItemBranchAndStatus(
@@ -117,7 +115,7 @@ class TransferService
             $this->repository->updateTransferStatusWithAudit($transferId, 'failed', [
                 'reason' => $reason,
                 'reported_by_user_id' => $reportedByUserId,
-                'resolved_at' => $now
+                'resolved_at' => $now,
             ]);
 
             // 3. Notify affected reader if reservation was associated
@@ -125,7 +123,7 @@ class TransferService
             if ($affectedUserId && $this->notifier) {
                 $this->notifier->notifyUser(
                     $affectedUserId,
-                    "Tu solicitud de préstamo intersede fue cancelada debido a una incidencia en transporte. El ejemplar fue reportado como extraviado.",
+                    'Tu solicitud de préstamo intersede fue cancelada debido a una incidencia en transporte. El ejemplar fue reportado como extraviado.',
                     ['transfer_id' => $transferId, 'item_id' => $transfer['item_id'], 'reason' => $reason]
                 );
             }
@@ -147,7 +145,7 @@ class TransferService
                 'reason' => $reason,
                 'reported_by_user_id' => $reportedByUserId,
                 'resolved_at' => $now,
-                'message' => 'Incidencia en transporte procesada. El ejemplar ha sido marcado como extraviado.'
+                'message' => 'Incidencia en transporte procesada. El ejemplar ha sido marcado como extraviado.',
             ];
         });
     }

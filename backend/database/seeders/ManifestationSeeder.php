@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Manifestation;
+use Illuminate\Database\Seeder;
 
 class ManifestationSeeder extends Seeder
 {

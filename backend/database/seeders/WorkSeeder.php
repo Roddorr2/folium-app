@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Work;
+use Illuminate\Database\Seeder;
 
 class WorkSeeder extends Seeder
 {
@@ -21,7 +21,7 @@ class WorkSeeder extends Seeder
                 'abstract' => 'Historia de la saga familiar Buendía a lo largo de siete generaciones en el emblemático e inolvidable pueblo de Macondo, obra cumbre del realismo mágico.',
                 'original_language' => 'Español',
                 'dewey' => '863.64',
-                'nature' => 'Obra Literaria'
+                'nature' => 'Obra Literaria',
             ]
         );
         $cienAnos->authors()->sync([2]);
@@ -35,7 +35,7 @@ class WorkSeeder extends Seeder
                 'abstract' => 'Contranovela fundamental de la literatura hispanoamericana que propone una lectura discontinua y plural entre París y Buenos Aires a través de Horacio Oliveira.',
                 'original_language' => 'Español',
                 'dewey' => '863.64',
-                'nature' => 'Obra Literaria'
+                'nature' => 'Obra Literaria',
             ]
         );
         $rayuela->authors()->sync([9]);
@@ -49,7 +49,7 @@ class WorkSeeder extends Seeder
                 'abstract' => 'Obra maestra del relato breve que explora bibliotecas infinitas, mapas del imperio, laberintos de espejos, juegos de lógica y paradojas del tiempo.',
                 'original_language' => 'Español',
                 'dewey' => '864.6',
-                'nature' => 'Obra Literaria'
+                'nature' => 'Obra Literaria',
             ]
         );
         $ficciones->authors()->sync([5]);
@@ -63,7 +63,7 @@ class WorkSeeder extends Seeder
                 'abstract' => 'Crónica familiar e itinerario de cuatro generaciones de la familia Trueba, entrelazando pasiones personales, espíritus y las transformaciones sociopolíticas sudamericanas.',
                 'original_language' => 'Español',
                 'dewey' => '863.64',
-                'nature' => 'Obra Literaria'
+                'nature' => 'Obra Literaria',
             ]
         );
         $casaEspiritus->authors()->sync([6]);
@@ -77,7 +77,7 @@ class WorkSeeder extends Seeder
                 'abstract' => 'Novela distópica sobre un régimen totalitario de vigilancia masiva, manipulación de la verdad histórica y la figura ominosa del Gran Hermano.',
                 'original_language' => 'Inglés',
                 'dewey' => '823.912',
-                'nature' => 'Obra Literaria'
+                'nature' => 'Obra Literaria',
             ]
         );
         $ow1984->authors()->sync([3]);
@@ -91,7 +91,7 @@ class WorkSeeder extends Seeder
                 'abstract' => 'La cumbre de la literatura castellana y primera novela moderna, que narra los desvaríos caballerescos y diálogos entre el hidalgo Don Quijote y Sancho Panza.',
                 'original_language' => 'Español',
                 'dewey' => '863.3',
-                'nature' => 'Obra Literaria'
+                'nature' => 'Obra Literaria',
             ]
         );
         $quijote->authors()->sync([10]);
@@ -105,7 +105,7 @@ class WorkSeeder extends Seeder
                 'abstract' => 'La epopeya fantástica clásica que sigue la travesía de Frodo Bolsón para destruir el Anillo Único en la Tierra Media.',
                 'original_language' => 'Inglés',
                 'dewey' => '823.914',
-                'nature' => 'Obra Literaria'
+                'nature' => 'Obra Literaria',
             ]
         );
         $lotr->authors()->sync([1]);
@@ -119,7 +119,7 @@ class WorkSeeder extends Seeder
                 'abstract' => 'Novela emblemática ambientada en el Colegio Militar Leoncio Prado que explora la disciplina autoritaria, la lealtad y la juventud urbana.',
                 'original_language' => 'Español',
                 'dewey' => '863.64',
-                'nature' => 'Obra Literaria'
+                'nature' => 'Obra Literaria',
             ]
         );
         $ciudadPerros->authors()->sync([7]);
@@ -137,7 +137,7 @@ class WorkSeeder extends Seeder
                 'abstract' => 'Monumental estudio botánico de la flora neotropical y farmacopea virreinal de la Real Expedición a los Reinos del Perú y Chile, registrado en láminas e ilustraciones.',
                 'original_language' => 'Latín',
                 'dewey' => '580.0',
-                'nature' => 'Tratado Científico'
+                'nature' => 'Tratado Científico',
             ]
         );
         $huaya->authors()->sync([4, 8]);
@@ -151,7 +151,7 @@ class WorkSeeder extends Seeder
                 'abstract' => 'Tratado fundacional de la biología moderna que presenta la teoría de la evolución mediante la selección natural y la diversificación de las formas vivas.',
                 'original_language' => 'Inglés',
                 'dewey' => '576.8',
-                'nature' => 'Tratado Científico'
+                'nature' => 'Tratado Científico',
             ]
         );
         $origen->authors()->sync([11]);
@@ -165,7 +165,7 @@ class WorkSeeder extends Seeder
                 'abstract' => 'Obra maestra de divulgación científica que explora la evolución del universo, la historia de la astronomía y el lugar de la humanidad en el cosmos.',
                 'original_language' => 'Inglés',
                 'dewey' => '520.0',
-                'nature' => 'Tratado Científico'
+                'nature' => 'Tratado Científico',
             ]
         );
         $cosmos->authors()->sync([12]);
@@ -183,7 +183,7 @@ class WorkSeeder extends Seeder
                 'abstract' => 'Ensayo de historia universal y antropología que recorre la evolución del Homo sapiens desde la revolución cognitiva hasta las tecnologías del siglo XXI.',
                 'original_language' => 'Hebreo',
                 'dewey' => '909.00',
-                'nature' => 'Ensayo'
+                'nature' => 'Ensayo',
             ]
         );
         $sapiens->authors()->sync([13]);
@@ -197,7 +197,7 @@ class WorkSeeder extends Seeder
                 'abstract' => 'Ensayo fundamental sobre la identidad, el mito, la historia y la condición colectiva mexicana y latinoamericana frente a la modernidad.',
                 'original_language' => 'Español',
                 'dewey' => '864.6',
-                'nature' => 'Ensayo'
+                'nature' => 'Ensayo',
             ]
         );
         $laberinto->authors()->sync([14]);

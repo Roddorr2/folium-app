@@ -12,12 +12,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Item extends Model
 {
     protected $fillable = [
-        'manifestation_id', 
-        'home_branch_id', 
-        'current_branch_id', 
-        'barcode', 
-        'shelf_location', 
-        'status'
+        'manifestation_id',
+        'home_branch_id',
+        'current_branch_id',
+        'barcode',
+        'shelf_location',
+        'status',
     ];
 
     /**

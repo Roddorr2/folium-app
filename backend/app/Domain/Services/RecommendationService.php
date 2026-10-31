@@ -2,8 +2,8 @@
 
 namespace App\Domain\Services;
 
-use App\Domain\Contracts\WorkRepositoryInterface;
 use App\Domain\Contracts\SearcherInterface;
+use App\Domain\Contracts\WorkRepositoryInterface;
 
 class RecommendationService
 {
@@ -15,8 +15,6 @@ class RecommendationService
     /**
      * Calculate personalized recommendations for a user based on checkout subjects.
      *
-     * @param string|int $userId
-     * @param int $limit
      * @return array<int, array<string, mixed>>
      */
     public function getRecommendationsForUser(string|int $userId, int $limit = 10): array
@@ -26,6 +24,7 @@ class RecommendationService
         if (empty($frequentSubjectIds)) {
             // Fallback to general search engine query for trending works
             $searchResults = $this->searcher->search('popular', [], $limit, 0);
+
             return $searchResults['hits'] ?? [];
         }
 

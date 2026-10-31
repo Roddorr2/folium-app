@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Domain\Services;
 
 use App\Domain\Contracts\CirculationRepositoryInterface;
-use DomainException;
 use DateTimeImmutable;
+use DomainException;
 use Illuminate\Support\Facades\DB;
 
 class CirculationService
 {
     private const MAX_ACTIVE_LOANS = 5;
+
     private const LOAN_DAYS_DEFAULT = 14;
 
     public function __construct(
@@ -25,7 +26,7 @@ class CirculationService
     {
         return DB::transaction(function () use ($barcode, $userId) {
             $item = $this->repository->findItemByBarcode($barcode);
-            if (!$item) {
+            if (! $item) {
                 throw new DomainException("El ejemplar con código de barras {$barcode} no existe.");
             }
 
@@ -35,18 +36,18 @@ class CirculationService
 
             $activeLoansCount = $this->repository->countUserActiveLoans($userId);
             if ($activeLoansCount >= self::MAX_ACTIVE_LOANS) {
-                throw new DomainException("El usuario ha alcanzado el límite máximo de " . self::MAX_ACTIVE_LOANS . " préstamos activos.");
+                throw new DomainException('El usuario ha alcanzado el límite máximo de '.self::MAX_ACTIVE_LOANS.' préstamos activos.');
             }
 
-            $now = new DateTimeImmutable();
-            $dueDate = $now->modify('+' . self::LOAN_DAYS_DEFAULT . ' days');
+            $now = new DateTimeImmutable;
+            $dueDate = $now->modify('+'.self::LOAN_DAYS_DEFAULT.' days');
 
             return $this->repository->createLoan([
                 'item_id' => $item['id'],
                 'user_id' => $userId,
                 'issued_at' => $now->format('Y-m-d H:i:s'),
                 'due_date' => $dueDate->format('Y-m-d'),
-                'status' => 'active'
+                'status' => 'active',
             ]);
         });
     }
@@ -57,29 +58,29 @@ class CirculationService
     public function returnLoan(string|int $loanId, string|int|null $receivingBranchId = null): array
     {
         return DB::transaction(function () use ($loanId, $receivingBranchId) {
-            $now = new DateTimeImmutable();
-            
+            $now = new DateTimeImmutable;
+
             $loan = $this->repository->findLoanById($loanId);
-            if (!$loan) {
+            if (! $loan) {
                 throw new DomainException("El préstamo ID {$loanId} no existe.");
             }
 
             $item = $this->repository->findItemById($loan['item_id']);
-            if (!$item) {
-                throw new DomainException("El ejemplar asociado al préstamo no fue encontrado.");
+            if (! $item) {
+                throw new DomainException('El ejemplar asociado al préstamo no fue encontrado.');
             }
 
             // 1. Close current loan
             $success = $this->repository->markReturned($loanId, $now);
-            if (!$success) {
+            if (! $success) {
                 throw new DomainException("No fue posible procesar la devolución del préstamo {$loanId}.");
             }
 
             // 2. Check cross-branch return (receiving branch != home branch)
             $homeBranchId = $item['home_branch_id'] ?? $item['branch_id'] ?? null;
-            $isCrossBranchReturn = $receivingBranchId !== null 
-                && $homeBranchId !== null 
-                && (int)$receivingBranchId !== (int)$homeBranchId;
+            $isCrossBranchReturn = $receivingBranchId !== null
+                && $homeBranchId !== null
+                && (int) $receivingBranchId !== (int) $homeBranchId;
 
             if ($isCrossBranchReturn) {
                 // RF2.5: Transición automática a 'in_transit' hacia la sede propietaria
@@ -90,7 +91,7 @@ class CirculationService
                     'origin_branch_id' => $receivingBranchId,
                     'destination_branch_id' => $homeBranchId,
                     'status' => 'in_transit',
-                    'reason' => 'repatriation'
+                    'reason' => 'repatriation',
                 ]);
 
                 return [
@@ -103,7 +104,7 @@ class CirculationService
                     'receiving_branch_id' => $receivingBranchId,
                     'home_branch_id' => $homeBranchId,
                     'transfer' => $repatriationTransfer,
-                    'message' => 'Devolución registrada. El ejemplar debe ser repatriado a su sede de origen.'
+                    'message' => 'Devolución registrada. El ejemplar debe ser repatriado a su sede de origen.',
                 ];
             }
 
@@ -124,7 +125,7 @@ class CirculationService
                 'status' => 'returned',
                 'item_status' => $hasReservations ? 'reserved' : 'available',
                 'repatriation_required' => false,
-                'message' => 'Devolución procesada exitosamente en sede de origen.'
+                'message' => 'Devolución procesada exitosamente en sede de origen.',
             ];
         });
     }

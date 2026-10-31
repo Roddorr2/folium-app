@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role_id' => $adminRole?->id,
                 'branch_id' => 1,
-                'dni' => '00100200'
+                'dni' => '00100200',
             ]
         );
 
@@ -37,7 +37,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role_id' => $catalogerRole?->id,
                 'branch_id' => 1,
-                'dni' => '00200300'
+                'dni' => '00200300',
             ]
         );
 
@@ -49,7 +49,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role_id' => $librarianRole?->id,
                 'branch_id' => 1,
-                'dni' => '00300400'
+                'dni' => '00300400',
             ]
         );
 
@@ -61,7 +61,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role_id' => $librarianRole?->id,
                 'branch_id' => 3,
-                'dni' => '00400500'
+                'dni' => '00400500',
             ]
         );
 
@@ -73,7 +73,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role_id' => $networkRole?->id,
                 'branch_id' => 1,
-                'dni' => '00500600'
+                'dni' => '00500600',
             ]
         );
 
@@ -85,7 +85,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role_id' => $readerRole?->id,
                 'branch_id' => 1,
-                'dni' => '00600700'
+                'dni' => '00600700',
             ]
         );
     }

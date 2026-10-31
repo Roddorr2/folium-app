@@ -40,8 +40,9 @@ class UserResource extends JsonResource
     {
         $segments = preg_split('/\s+/', trim($name));
         if ($segments && count($segments) > 1) {
-            return $segments[0] . ' ' . strtoupper(substr($segments[1], 0, 1)) . '.';
+            return $segments[0].' '.strtoupper(substr($segments[1], 0, 1)).'.';
         }
+
         return $segments[0] ?? '';
     }
 
@@ -49,8 +50,9 @@ class UserResource extends JsonResource
     {
         $segments = preg_split('/\s+/', trim($name));
         if ($segments && count($segments) >= 2) {
-            return strtoupper(substr($segments[0], 0, 1) . substr($segments[1], 0, 1));
+            return strtoupper(substr($segments[0], 0, 1).substr($segments[1], 0, 1));
         }
+
         return strtoupper(substr($segments[0] ?? 'U', 0, 1));
     }
 }

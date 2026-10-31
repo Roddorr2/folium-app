@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Expression;
+use Illuminate\Database\Seeder;
 
 class ExpressionSeeder extends Seeder
 {

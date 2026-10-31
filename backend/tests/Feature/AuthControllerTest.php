@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\User;
-use Database\Seeders\RoleSeeder;
 use Database\Seeders\BranchSeeder;
+use Database\Seeders\RoleSeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class AuthControllerTest extends TestCase
 {
@@ -50,7 +50,7 @@ class AuthControllerTest extends TestCase
                         'short_label',
                         'badge_variant',
                     ],
-                ]
+                ],
             ]);
 
         $userData = $response->json('user');

@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Domain\DTOs\IssueLoanDTO;
+use Illuminate\Foundation\Http\FormRequest;
 
 class IssueLoanRequest extends FormRequest
 {
@@ -16,7 +16,7 @@ class IssueLoanRequest extends FormRequest
     {
         return [
             'barcode' => ['required', 'string', 'max:255'],
-            'user_id' => ['required', 'integer']
+            'user_id' => ['required', 'integer'],
         ];
     }
 

@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Domain\DTOs\InitiateTransferDTO;
+use Illuminate\Foundation\Http\FormRequest;
 
 class InitiateTransferRequest extends FormRequest
 {
@@ -17,7 +17,7 @@ class InitiateTransferRequest extends FormRequest
         return [
             'item_id' => ['required', 'integer'],
             'origin_branch_id' => ['required', 'integer'],
-            'destination_branch_id' => ['required', 'integer']
+            'destination_branch_id' => ['required', 'integer'],
         ];
     }
 

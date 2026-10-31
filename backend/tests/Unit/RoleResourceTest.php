@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Models\Role;
 use App\Http\Resources\RoleResource;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class RoleResourceTest extends TestCase
 {
@@ -23,10 +23,10 @@ class RoleResourceTest extends TestCase
         ];
 
         foreach ($roleCases as $roleName => $expected) {
-            $role = new Role();
+            $role = new Role;
             $role->id = 10;
             $role->name = $roleName;
-            $role->display_name = 'Custom ' . ucfirst($roleName);
+            $role->display_name = 'Custom '.ucfirst($roleName);
             $role->description = 'Role description';
 
             $resource = new RoleResource($role);
@@ -35,7 +35,7 @@ class RoleResourceTest extends TestCase
             $this->assertSame(10, $serialized['id']);
             $this->assertSame($roleName, $serialized['key']);
             $this->assertSame($roleName, $serialized['name']);
-            $this->assertSame('Custom ' . ucfirst($roleName), $serialized['display_name']);
+            $this->assertSame('Custom '.ucfirst($roleName), $serialized['display_name']);
             $this->assertSame($expected['short_label'], $serialized['short_label']);
             $this->assertSame($expected['badge_variant'], $serialized['badge_variant']);
             $this->assertSame('Role description', $serialized['description']);

@@ -15,7 +15,7 @@ class WorkQueryRequest extends FormRequest
     {
         return [
             'q' => ['nullable', 'string', 'max:255'],
-            'branch_id' => ['nullable', 'integer']
+            'branch_id' => ['nullable', 'integer'],
         ];
     }
 }

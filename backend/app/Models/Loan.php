@@ -15,7 +15,7 @@ class Loan extends Model
         'checkout_branch_id',
         'return_branch_id',
         'due_date',
-        'returned_at'
+        'returned_at',
     ];
 
     protected $casts = [

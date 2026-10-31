@@ -11,7 +11,7 @@ class WebSocketNotifier implements NotifierInterface
         return $this->broadcast("private-user-{$userId}", 'NotificationEvent', [
             'message' => $message,
             'payload' => $payload,
-            'timestamp' => time()
+            'timestamp' => time(),
         ]);
     }
 

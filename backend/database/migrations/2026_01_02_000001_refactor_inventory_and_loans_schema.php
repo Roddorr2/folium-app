@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -11,23 +11,23 @@ return new class extends Migration
     {
         // Add metadata columns to expressions table
         Schema::table('expressions', function (Blueprint $table) {
-            if (!Schema::hasColumn('expressions', 'type')) {
+            if (! Schema::hasColumn('expressions', 'type')) {
                 $table->string('type')->nullable()->default('Texto Impreso')->after('language_id');
             }
-            if (!Schema::hasColumn('expressions', 'revision_year')) {
+            if (! Schema::hasColumn('expressions', 'revision_year')) {
                 $table->integer('revision_year')->nullable()->after('type');
             }
-            if (!Schema::hasColumn('expressions', 'description')) {
+            if (! Schema::hasColumn('expressions', 'description')) {
                 $table->text('description')->nullable()->after('revision_year');
             }
         });
 
         // 1. Refactorización de la tabla items (Separación de Sede Patrimonial y Ubicación Física)
         Schema::table('items', function (Blueprint $table) {
-            if (!Schema::hasColumn('items', 'home_branch_id')) {
+            if (! Schema::hasColumn('items', 'home_branch_id')) {
                 $table->foreignId('home_branch_id')->nullable()->after('manifestation_id')->constrained('branches')->cascadeOnDelete();
             }
-            if (!Schema::hasColumn('items', 'current_branch_id')) {
+            if (! Schema::hasColumn('items', 'current_branch_id')) {
                 $table->foreignId('current_branch_id')->nullable()->after('home_branch_id')->constrained('branches')->cascadeOnDelete();
             }
         });
@@ -44,16 +44,16 @@ return new class extends Migration
 
         // 2. Refactorización de la tabla loans (Auditoría Intersede y Trazabilidad)
         Schema::table('loans', function (Blueprint $table) {
-            if (!Schema::hasColumn('loans', 'checkout_branch_id')) {
+            if (! Schema::hasColumn('loans', 'checkout_branch_id')) {
                 $table->foreignId('checkout_branch_id')->nullable()->after('user_id')->constrained('branches')->nullOnDelete();
             }
-            if (!Schema::hasColumn('loans', 'return_branch_id')) {
+            if (! Schema::hasColumn('loans', 'return_branch_id')) {
                 $table->foreignId('return_branch_id')->nullable()->after('checkout_branch_id')->constrained('branches')->nullOnDelete();
             }
         });
 
         // 3. Creación de la tabla transfers para trazabilidad de Préstamo Intersede (ILL) y Repatriación
-        if (!Schema::hasTable('transfers')) {
+        if (! Schema::hasTable('transfers')) {
             Schema::create('transfers', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('item_id')->constrained('items')->cascadeOnDelete();

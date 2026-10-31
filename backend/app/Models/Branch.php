@@ -12,7 +12,7 @@ class Branch extends Model
     protected $fillable = ['name', 'city', 'address', 'phone'];
 
     /**
-     * Relationship alias so legacy calls ($branch->items, Branch::withCount('items')) 
+     * Relationship alias so legacy calls ($branch->items, Branch::withCount('items'))
      * map directly to physical items currently located at this branch.
      */
     public function items(): HasMany

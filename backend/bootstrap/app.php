@@ -1,9 +1,9 @@
 <?php
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Auth\Access\AuthorizationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -22,7 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'status' => 'forbidden',
                     'error' => 'Broken Access Control Prevention (OWASP A01)',
-                    'message' => $e->getMessage() ?: 'Acceso denegado a la administración de infraestructura'
+                    'message' => $e->getMessage() ?: 'Acceso denegado a la administración de infraestructura',
                 ], 403);
             }
         });

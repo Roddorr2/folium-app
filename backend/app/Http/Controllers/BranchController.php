@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class BranchController extends Controller
 {
@@ -17,7 +17,7 @@ class BranchController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $branches
+            'data' => $branches,
         ]);
     }
 
@@ -28,16 +28,16 @@ class BranchController extends Controller
     {
         $branch = Branch::with(['items.manifestation.expression.work', 'users'])->find($id);
 
-        if (!$branch) {
+        if (! $branch) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Sede no encontrada'
+                'message' => 'Sede no encontrada',
             ], 404);
         }
 
         return response()->json([
             'status' => 'success',
-            'data' => $branch
+            'data' => $branch,
         ]);
     }
 
@@ -60,7 +60,7 @@ class BranchController extends Controller
         return response()->json([
             'status' => 'created',
             'message' => 'Sede bibliotecaria registrada exitosamente',
-            'data' => $branch
+            'data' => $branch,
         ], 201);
     }
 
@@ -71,10 +71,10 @@ class BranchController extends Controller
     {
         $branch = Branch::find($id);
 
-        if (!$branch) {
+        if (! $branch) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Sede no encontrada'
+                'message' => 'Sede no encontrada',
             ], 404);
         }
 
@@ -92,7 +92,7 @@ class BranchController extends Controller
         return response()->json([
             'status' => 'updated',
             'message' => "Sede ID {$id} actualizada correctamente",
-            'data' => $branch
+            'data' => $branch,
         ]);
     }
 
@@ -103,10 +103,10 @@ class BranchController extends Controller
     {
         $branch = Branch::find($id);
 
-        if (!$branch) {
+        if (! $branch) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Sede no encontrada'
+                'message' => 'Sede no encontrada',
             ], 404);
         }
 
@@ -115,7 +115,7 @@ class BranchController extends Controller
         if ($branch->items()->count() > 0) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'No se puede eliminar la sede porque cuenta con ejemplares físicos asignados.'
+                'message' => 'No se puede eliminar la sede porque cuenta con ejemplares físicos asignados.',
             ], 422);
         }
 
@@ -123,7 +123,7 @@ class BranchController extends Controller
 
         return response()->json([
             'status' => 'deleted',
-            'message' => "Sede ID {$id} eliminada correctamente"
+            'message' => "Sede ID {$id} eliminada correctamente",
         ]);
     }
 }

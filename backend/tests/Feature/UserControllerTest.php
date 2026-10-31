@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Role;
 use App\Models\Branch;
-use Database\Seeders\RoleSeeder;
+use App\Models\Role;
+use App\Models\User;
 use Database\Seeders\BranchSeeder;
+use Database\Seeders\RoleSeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class UserControllerTest extends TestCase
 {
@@ -55,8 +55,8 @@ class UserControllerTest extends TestCase
                             'badge_variant',
                         ],
                         'branch',
-                    ]
-                ]
+                    ],
+                ],
             ]);
     }
 
@@ -96,8 +96,8 @@ class UserControllerTest extends TestCase
                         'display_name',
                         'short_label',
                         'badge_variant',
-                    ]
-                ]
+                    ],
+                ],
             ]);
 
         $roles = $response->json('data');

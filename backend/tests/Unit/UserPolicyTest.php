@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
 use App\Policies\UserPolicy;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class UserPolicyTest extends TestCase
 {
@@ -17,12 +17,12 @@ class UserPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new UserPolicy();
+        $this->policy = new UserPolicy;
     }
 
     private function createUserWithRole(int $id, string $roleName): User
     {
-        $role = new Role();
+        $role = new Role;
         $role->id = match ($roleName) {
             'admin' => 1,
             'cataloger' => 2,
@@ -32,7 +32,7 @@ class UserPolicyTest extends TestCase
         };
         $role->name = $roleName;
 
-        $user = new User();
+        $user = new User;
         $user->id = $id;
         $user->name = "User {$id}";
         $user->email = "user{$id}@folium.test";

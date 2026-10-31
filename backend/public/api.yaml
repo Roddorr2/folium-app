@@ -1,0 +1,897 @@
+openapi: 3.1.0
+info:
+  title: Folium SIGB — API REST Multi-Sede (IFLA LRM / WEMI)
+  version: 1.0.0
+  summary: Contrato oficial OpenAPI para el Sistema Integrado de Gestión Bibliotecaria Folium.
+  description: |
+    API RESTful construida bajo **Clean / Hexagonal Architecture** y el estándar bibliográfico **IFLA LRM / FRBR (Work, Expression, Manifestation, Item)**.
+    
+    ### Autenticación
+    Los endpoints de mutación y administración requieren un token Bearer emitido por **Laravel Sanctum** (`/api/v1/auth/login`).
+  contact:
+    name: Equipo de Arquitectura Folium
+    email: admin@folium.org
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Servidor Local de Desarrollo (Docker / Artisan)
+  - url: https://api.folium.biblioteca.org/api/v1
+    description: Servidor de Producción
+
+tags:
+  - name: Autenticación
+    description: Inicio/cierre de sesión e identidad activa mediante tokens Sanctum.
+  - name: Catálogo WEMI
+    description: Consulta pública (OPAC) y catalogación jerárquica Work-Expression-Manifestation-Item.
+  - name: Sedes (Branches)
+    description: Gestión de sucursales físicas e inventario custodiado de la red bibliotecaria.
+  - name: Usuarios y Roles
+    description: Administración de personal, lectores y control de acceso basado en roles (RBAC).
+  - name: Circulación e ILL
+    description: Préstamos en sala, devoluciones intersede y transferencias interbibliotecarias (ILL).
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum Token
+      description: Token devuelto en `POST /auth/login`. Enviar como `Authorization: Bearer <token>`.
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [message]
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+          example: No tienes permisos para realizar esta acción.
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    RoleResource:
+      type: object
+      required: [id, key, name, display_name, short_label, badge_variant]
+      properties:
+        id:
+          type: integer
+          example: 1
+        key:
+          type: string
+          enum: [admin, cataloger, librarian, network_librarian, reader]
+          example: admin
+        name:
+          type: string
+          example: admin
+        display_name:
+          type: string
+          example: Administrador General
+        short_label:
+          type: string
+          example: Admin
+        badge_variant:
+          type: string
+          enum: [forest, emerald, copper, crimson, stone]
+          example: forest
+        description:
+          type: [string, "null"]
+          example: Acceso total a la red de bibliotecas y configuración del sistema.
+
+    BranchSummary:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Sede Lima Central
+        city:
+          type: [string, "null"]
+          example: Lima
+        address:
+          type: [string, "null"]
+          example: Av. Abancay cdra. 4
+        phone:
+          type: [string, "null"]
+          example: (01) 513-6900
+        items_count:
+          type: integer
+          example: 12
+
+    UserResource:
+      type: object
+      required: [id, name, short_name, initials, email, role_id, role]
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Directora Elena Vásquez
+        short_name:
+          type: string
+          example: Directora E.
+        initials:
+          type: string
+          example: DE
+        email:
+          type: string
+          format: email
+          example: admin@folium.org
+        dni:
+          type: [string, "null"]
+          example: "40112233"
+        role_id:
+          type: integer
+          example: 1
+        branch_id:
+          type: [integer, "null"]
+          example: 1
+        role:
+          $ref: '#/components/schemas/RoleResource'
+        branch:
+          oneOf:
+            - $ref: '#/components/schemas/BranchSummary'
+            - type: "null"
+
+    LanguageResource:
+      type: object
+      required: [id, code, name, native_name, is_active]
+      properties:
+        id:
+          type: integer
+          example: 1
+        code:
+          type: string
+          example: es
+        name:
+          type: string
+          example: Spanish
+        native_name:
+          type: string
+          example: Español
+        script:
+          type: string
+          example: Latn
+        is_active:
+          type: boolean
+          example: true
+
+    ItemResource:
+      type: object
+      required: [id, manifestation_id, barcode, status]
+      properties:
+        id:
+          type: integer
+          example: 10
+        manifestation_id:
+          type: integer
+          example: 1
+        home_branch_id:
+          type: integer
+          example: 1
+        current_branch_id:
+          type: integer
+          example: 1
+        branch_id:
+          type: integer
+          example: 1
+        branch_name:
+          type: [string, "null"]
+          example: Sede Lima Central
+        barcode:
+          type: string
+          example: CAS-N1
+        shelf_location:
+          type: [string, "null"]
+          example: ESTANTE-A04
+        status:
+          type: string
+          enum: [available, loaned, reserved, in_transit, lost]
+          example: available
+        branch:
+          $ref: '#/components/schemas/BranchSummary'
+
+    ManifestationResource:
+      type: object
+      required: [id, expression_id, format]
+      properties:
+        id:
+          type: integer
+          example: 1
+        expression_id:
+          type: integer
+          example: 1
+        isbn:
+          type: [string, "null"]
+          example: 978-84-204-7183-9
+        publisher:
+          type: [string, "null"]
+          example: Alfaguara Real Academia Española
+        publication_year:
+          type: [integer, "null"]
+          example: 2007
+        format:
+          type: string
+          example: Tapa Dura Conmemorativa
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemResource'
+
+    ExpressionResource:
+      type: object
+      required: [id, work_id, language_id]
+      properties:
+        id:
+          type: integer
+          example: 1
+        work_id:
+          type: integer
+          example: 101
+        language_id:
+          type: integer
+          example: 1
+        type:
+          type: [string, "null"]
+          example: Texto Impreso
+        revision_year:
+          type: [integer, "null"]
+          example: 1967
+        description:
+          type: [string, "null"]
+          example: Edición conmemorativa RAE y Asociación de Academias.
+        manifestations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManifestationResource'
+
+    WorkResource:
+      type: object
+      required: [id, title]
+      properties:
+        id:
+          type: integer
+          example: 101
+        title:
+          type: string
+          example: Cien años de soledad
+        abstract:
+          type: [string, "null"]
+          example: Crónica multigeneracional de la familia Buendía en Macondo.
+        original_language:
+          type: [string, "null"]
+          example: Español
+        dewey:
+          type: [string, "null"]
+          example: 863.64 G25
+        nature:
+          type: [string, "null"]
+          example: Novela · Realismo Mágico
+        authors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+        subjects:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+        expressions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpressionResource'
+
+    WorkUpsertRequest:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          maxLength: 255
+          example: Comentarios Reales de los Incas
+        author:
+          type: string
+          example: Inca Garcilaso de la Vega
+        authors:
+          type: array
+          items:
+            type: string
+          example: ["Inca Garcilaso de la Vega"]
+        subjects:
+          type: array
+          items:
+            type: string
+          example: ["Historia Andina", "Crónicas Coloniales"]
+        abstract:
+          type: string
+          example: Obra histórica y literaria sobre el origen y cultura del Imperio Incaico.
+        original_language:
+          type: string
+          example: Español
+        dewey:
+          type: string
+          example: 985.02 G21c
+        nature:
+          type: string
+          example: Crónica Histórica
+        format:
+          type: string
+          example: Tapa Dura en Lino
+        isbn:
+          type: string
+          example: 978-612-4000-01-9
+        branch_id:
+          type: integer
+          example: 1
+        shelf_location:
+          type: string
+          example: ESTANTE-A01
+
+paths:
+  /auth/login:
+    post:
+      tags: [Autenticación]
+      summary: Iniciar sesión y obtener token Sanctum
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: admin@folium.org
+                password:
+                  type: string
+                  format: password
+                  example: password
+      responses:
+        '200':
+          description: Autenticación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  token:
+                    type: string
+                    example: 1|laravel_sanctum_token_example
+                  user:
+                    $ref: '#/components/schemas/UserResource'
+        '422':
+          description: Credenciales inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/me:
+    get:
+      tags: [Autenticación]
+      summary: Obtener perfil y rol del usuario autenticado
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Perfil del usuario en sesión
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  user:
+                    $ref: '#/components/schemas/UserResource'
+        '401':
+          description: Token ausente o inválido
+
+  /auth/logout:
+    post:
+      tags: [Autenticación]
+      summary: Cerrar sesión y revocar tokens activos
+      operationId: logoutUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Sesión cerrada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Sesión cerrada correctamente
+
+  /works:
+    get:
+      tags: [Catálogo WEMI]
+      summary: Listar obras del catálogo con jerarquía WEMI completa
+      operationId: listWorks
+      parameters:
+        - name: q
+          in: query
+          description: Término de búsqueda por título, autor o materia
+          schema:
+            type: string
+        - name: branch_id
+          in: query
+          description: Filtrar por ID de sede con stock disponible
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Catálogo WEMI recuperado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkResource'
+
+    post:
+      tags: [Catálogo WEMI]
+      summary: Catalogar una nueva obra con su expresión, manifestación e ítem inicial
+      operationId: createWork
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkUpsertRequest'
+      responses:
+        '201':
+          description: Obra catalogada en base de datos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: created
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/WorkResource'
+        '403':
+          description: Rol sin permisos de catalogación (requiere `admin` o `cataloger`)
+
+  /works/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Catálogo WEMI]
+      summary: Obtener detalle completo WEMI de una obra
+      operationId: getWorkById
+      responses:
+        '200':
+          description: Ficha detallada de la obra
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    $ref: '#/components/schemas/WorkResource'
+        '404':
+          description: Obra no encontrada
+
+    put:
+      tags: [Catálogo WEMI]
+      summary: Actualizar metadatos de una obra existente
+      operationId: updateWork
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkUpsertRequest'
+      responses:
+        '200':
+          description: Obra actualizada correctamente
+        '403':
+          description: No autorizado
+        '404':
+          description: Obra no encontrada
+
+    patch:
+      tags: [Catálogo WEMI]
+      summary: Actualización parcial de campos de una obra
+      operationId: patchWork
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkUpsertRequest'
+      responses:
+        '200':
+          description: Obra actualizada parcialmente
+
+    delete:
+      tags: [Catálogo WEMI]
+      summary: Eliminar una obra y su jerarquía asociada
+      operationId: deleteWork
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Obra eliminada del catálogo
+        '403':
+          description: No autorizado
+        '404':
+          description: Obra no encontrada
+
+  /branches:
+    get:
+      tags: [Sedes (Branches)]
+      summary: Listar todas las sedes de la red con conteo de inventario
+      operationId: listBranches
+      responses:
+        '200':
+          description: Lista de sedes bibliotecarias
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BranchSummary'
+
+    post:
+      tags: [Sedes (Branches)]
+      summary: Registrar una nueva sede física en la red
+      operationId: createBranch
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  example: Sede Arequipa Sur
+                city:
+                  type: string
+                  example: Arequipa
+                address:
+                  type: string
+                  example: Calle Mercaderes 210
+                phone:
+                  type: string
+                  example: (054) 212-000
+      responses:
+        '201':
+          description: Sede creada exitosamente
+        '403':
+          description: Solo administradores pueden crear sedes
+
+  /branches/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Sedes (Branches)]
+      summary: Consultar detalle e inventario físico de una sede
+      operationId: getBranchById
+      responses:
+        '200':
+          description: Detalle de sede
+        '404':
+          description: Sede no encontrada
+
+    put:
+      tags: [Sedes (Branches)]
+      summary: Actualizar información de una sede
+      operationId: updateBranch
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                city:
+                  type: string
+                address:
+                  type: string
+                phone:
+                  type: string
+      responses:
+        '200':
+          description: Sede actualizada
+        '404':
+          description: Sede no encontrada
+
+    delete:
+      tags: [Sedes (Branches)]
+      summary: Eliminar una sede sin ejemplares asignados
+      operationId: deleteBranch
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Sede eliminada
+        '422':
+          description: No se puede eliminar porque tiene ejemplares asignados
+
+  /languages:
+    get:
+      tags: [Catálogo WEMI]
+      summary: Listar idiomas activos ISO 639-1 disponibles para catalogación
+      operationId: listLanguages
+      responses:
+        '200':
+          description: Lista de idiomas activos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LanguageResource'
+
+  /users:
+    get:
+      tags: [Usuarios y Roles]
+      summary: Listar usuarios y personal de la red (Solo Admin)
+      operationId: listUsers
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserResource'
+        '403':
+          description: Acceso exclusivo para Administradores
+
+    post:
+      tags: [Usuarios y Roles]
+      summary: Registrar un nuevo miembro del personal o lector (Solo Admin)
+      operationId: createUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password, role_id]
+              properties:
+                name:
+                  type: string
+                  example: Carlos Mendoza
+                email:
+                  type: string
+                  format: email
+                  example: carlos.mendoza@folium.org
+                password:
+                  type: string
+                  minLength: 6
+                  example: secret123
+                role_id:
+                  type: integer
+                  example: 3
+                branch_id:
+                  type: [integer, "null"]
+                  example: 1
+                dni:
+                  type: string
+                  example: "70889911"
+      responses:
+        '201':
+          description: Usuario creado exitosamente
+        '422':
+          description: Error de validación (ej. bibliotecario sin sede asignada)
+
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    put:
+      tags: [Usuarios y Roles]
+      summary: Actualizar datos o rol de un usuario
+      operationId: updateUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                role_id:
+                  type: integer
+                branch_id:
+                  type: [integer, "null"]
+                dni:
+                  type: string
+      responses:
+        '200':
+          description: Usuario actualizado
+        '403':
+          description: No puedes degradar tus propios privilegios de administrador
+
+    delete:
+      tags: [Usuarios y Roles]
+      summary: Revocar y eliminar cuenta de otro usuario
+      operationId: deleteUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Usuario eliminado y tokens revocados
+        '403':
+          description: Prohibido eliminar la propia sesión activa
+
+  /roles:
+    get:
+      tags: [Usuarios y Roles]
+      summary: Obtener catálogo de roles con metadatos visuales del Design System
+      operationId: listRoles
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de roles del sistema
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RoleResource'
+
+  /loans:
+    post:
+      tags: [Circulación e ILL]
+      summary: Registrar préstamo físico de ejemplar
+      operationId: createLoan
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [barcode, user_id]
+              properties:
+                barcode:
+                  type: string
+                  example: CAS-N1
+                user_id:
+                  type: string
+                  example: "40112233"
+      responses:
+        '200':
+          description: Préstamo procesado
+
+  /transfers:
+    post:
+      tags: [Circulación e ILL]
+      summary: Solicitar transferencia interbibliotecaria (ILL)
+      operationId: createTransfer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [item_id, origin_branch_id, destination_branch_id]
+              properties:
+                item_id:
+                  type: integer
+                  example: 10
+                origin_branch_id:
+                  type: integer
+                  example: 1
+                destination_branch_id:
+                  type: integer
+                  example: 2
+      responses:
+        '200':
+          description: Transferencia iniciada

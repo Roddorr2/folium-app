@@ -12,7 +12,7 @@ class Language extends Model
         'name',
         'native_name',
         'script',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [

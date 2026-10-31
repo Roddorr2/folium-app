@@ -8,7 +8,7 @@ class InterBranchTransfer implements TransferStrategyInterface
 {
     public function supports(string|int $originBranchId, string|int $destinationBranchId): bool
     {
-        return (string)$originBranchId !== (string)$destinationBranchId;
+        return (string) $originBranchId !== (string) $destinationBranchId;
     }
 
     public function executeTransfer(string|int $itemId, string|int $originBranchId, string|int $destinationBranchId): array
@@ -19,7 +19,7 @@ class InterBranchTransfer implements TransferStrategyInterface
             'destination_branch_id' => $destinationBranchId,
             'status' => 'in_transit',
             'in_transit' => true,
-            'message' => 'Solicitud de préstamo interbibliotecario registrada. El ejemplar pasa a tránsito entre sedes.'
+            'message' => 'Solicitud de préstamo interbibliotecario registrada. El ejemplar pasa a tránsito entre sedes.',
         ];
     }
 }

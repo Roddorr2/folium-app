@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\Language;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\WorkController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WorkController;
+use App\Models\Language;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,7 +29,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/branches/{id}', [BranchController::class, 'show']);
 
     // Languages Endpoint
-    Route::get('/languages', fn() => response()->json(['status' => 'success', 'data' => Language::where('is_active', true)->get()]));
+    Route::get('/languages', fn () => response()->json(['status' => 'success', 'data' => Language::where('is_active', true)->get()]));
 
     // Protected Routes (Sanctum Auth Required)
     Route::middleware('auth:sanctum')->group(function () {
@@ -54,7 +54,7 @@ Route::prefix('v1')->group(function () {
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
         Route::get('/roles', [UserController::class, 'roles']);
 
-        Route::post('/loans', fn() => response()->json(['status' => 'created', 'message' => 'Préstamo procesado']));
-        Route::post('/transfers', fn() => response()->json(['status' => 'created', 'message' => 'Transferencia iniciada']));
+        Route::post('/loans', fn () => response()->json(['status' => 'created', 'message' => 'Préstamo procesado']));
+        Route::post('/transfers', fn () => response()->json(['status' => 'created', 'message' => 'Transferencia iniciada']));
     });
 });

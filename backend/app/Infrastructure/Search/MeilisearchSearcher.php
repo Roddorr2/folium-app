@@ -14,7 +14,7 @@ class MeilisearchSearcher implements SearcherInterface
             'query' => $query,
             'limit' => $limit,
             'offset' => $offset,
-            'hits' => []
+            'hits' => [],
         ];
     }
 

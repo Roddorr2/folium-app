@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Role;
-use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -24,7 +24,7 @@ class UserController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => \App\Http\Resources\UserResource::collection($users)
+            'data' => \App\Http\Resources\UserResource::collection($users),
         ]);
     }
 
@@ -37,7 +37,7 @@ class UserController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => \App\Http\Resources\RoleResource::collection($roles)
+            'data' => \App\Http\Resources\RoleResource::collection($roles),
         ]);
     }
 
@@ -63,7 +63,7 @@ class UserController extends Controller
         if ($role && $role->name === 'librarian' && empty($validated['branch_id'])) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'La asignación de sede física (branch_id) es obligatoria para el rol de Bibliotecario de Sede.'
+                'message' => 'La asignación de sede física (branch_id) es obligatoria para el rol de Bibliotecario de Sede.',
             ], 422);
         }
 
@@ -81,7 +81,7 @@ class UserController extends Controller
         return response()->json([
             'status' => 'created',
             'message' => 'Usuario registrado exitosamente',
-            'data' => new \App\Http\Resources\UserResource($user)
+            'data' => new \App\Http\Resources\UserResource($user),
         ], 201);
     }
 
@@ -92,10 +92,10 @@ class UserController extends Controller
     {
         $user = User::find($id);
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Usuario no encontrado'
+                'message' => 'Usuario no encontrado',
             ], 404);
         }
 
@@ -103,7 +103,7 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
+            'email' => 'sometimes|required|string|email|max:255|unique:users,email,'.$id,
             'password' => 'sometimes|nullable|string|min:6',
             'role_id' => 'sometimes|required|exists:roles,id',
             'branch_id' => 'sometimes|nullable|exists:branches,id',
@@ -111,11 +111,11 @@ class UserController extends Controller
         ]);
 
         // Self-privilege degradation guard
-        if ($request->user() && (int)$request->user()->id === (int)$user->id) {
-            if (isset($validated['role_id']) && (int)$validated['role_id'] !== (int)$user->role_id) {
+        if ($request->user() && (int) $request->user()->id === (int) $user->id) {
+            if (isset($validated['role_id']) && (int) $validated['role_id'] !== (int) $user->role_id) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Operación no permitida: no puedes revocar o modificar tus propios privilegios de administración.'
+                    'message' => 'Operación no permitida: no puedes revocar o modificar tus propios privilegios de administración.',
                 ], 403);
             }
         }
@@ -126,12 +126,12 @@ class UserController extends Controller
             if ($role && $role->name === 'librarian' && empty($targetBranchId)) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'La asignación de sede física es obligatoria para el rol de Bibliotecario de Sede.'
+                    'message' => 'La asignación de sede física es obligatoria para el rol de Bibliotecario de Sede.',
                 ], 422);
             }
         }
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
@@ -143,7 +143,7 @@ class UserController extends Controller
         return response()->json([
             'status' => 'updated',
             'message' => 'Usuario actualizado correctamente',
-            'data' => new \App\Http\Resources\UserResource($user)
+            'data' => new \App\Http\Resources\UserResource($user),
         ]);
     }
 
@@ -154,18 +154,18 @@ class UserController extends Controller
     {
         $user = User::find($id);
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Usuario no encontrado'
+                'message' => 'Usuario no encontrado',
             ], 404);
         }
 
         // Self-deletion lockout prevention
-        if ($request->user() && (int)$request->user()->id === (int)$user->id) {
+        if ($request->user() && (int) $request->user()->id === (int) $user->id) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Operación no permitida: no puedes eliminar o suspender tu propia cuenta activa.'
+                'message' => 'Operación no permitida: no puedes eliminar o suspender tu propia cuenta activa.',
             ], 403);
         }
 
@@ -177,7 +177,7 @@ class UserController extends Controller
 
         return response()->json([
             'status' => 'deleted',
-            'message' => "Credenciales del usuario ID {$id} revocadas y registro eliminado"
+            'message' => "Credenciales del usuario ID {$id} revocadas y registro eliminado",
         ]);
     }
 }

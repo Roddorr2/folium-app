@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Role;
+use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
 {
@@ -13,7 +13,7 @@ class RoleSeeder extends Seeder
             ['name' => 'admin'],
             [
                 'display_name' => 'Administrador General',
-                'description' => 'Acceso completo a la plataforma, configuración global y gestión de usuarios.'
+                'description' => 'Acceso completo a la plataforma, configuración global y gestión de usuarios.',
             ]
         );
 
@@ -21,7 +21,7 @@ class RoleSeeder extends Seeder
             ['name' => 'cataloger'],
             [
                 'display_name' => 'Catalogador WEMI',
-                'description' => 'Gestión técnica de obras, expresiones, manifestaciones e iconografía bibliotecaria.'
+                'description' => 'Gestión técnica de obras, expresiones, manifestaciones e iconografía bibliotecaria.',
             ]
         );
 
@@ -29,7 +29,7 @@ class RoleSeeder extends Seeder
             ['name' => 'librarian'],
             [
                 'display_name' => 'Bibliotecario de Sede',
-                'description' => 'Gestión física de préstamos locales, devoluciones e inventarios de sucursal.'
+                'description' => 'Gestión física de préstamos locales, devoluciones e inventarios de sucursal.',
             ]
         );
 
@@ -37,7 +37,7 @@ class RoleSeeder extends Seeder
             ['name' => 'network_librarian'],
             [
                 'display_name' => 'Bibliotecario de Red Multi-Sede',
-                'description' => 'Supervisión de préstamos intersede (ILL), transferencias y auditoría de incidencias en tránsito.'
+                'description' => 'Supervisión de préstamos intersede (ILL), transferencias y auditoría de incidencias en tránsito.',
             ]
         );
 
@@ -45,7 +45,7 @@ class RoleSeeder extends Seeder
             ['name' => 'reader'],
             [
                 'display_name' => 'Lector Registrado',
-                'description' => 'Usuario registrado OPAC con permisos de consulta, reserva de ejemplares y solicitud de traslados.'
+                'description' => 'Usuario registrado OPAC con permisos de consulta, reserva de ejemplares y solicitud de traslados.',
             ]
         );
     }
