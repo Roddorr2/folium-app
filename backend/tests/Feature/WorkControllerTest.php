@@ -157,4 +157,3 @@ class WorkControllerTest extends TestCase
         $specResponse->assertStatus(200);
     }
 }
-
